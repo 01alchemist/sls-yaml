@@ -1,0 +1,10 @@
+.history
+dist
+pacts
+logs
+__testdata__
+coverage
+node_modules
+logs
+.vscode
+index.js
