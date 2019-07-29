@@ -269,8 +269,6 @@ function parse(content: any, root: any = {}, basePath: string): any {
     if (!content) {
       const valueNode = new Node(NodeKind.VALUE, new Scope(0, -1));
       valueNode.value = content;
-      console.log(valueNode);
-
       return valueNode;
     }
     const keys = Object.keys(content);
