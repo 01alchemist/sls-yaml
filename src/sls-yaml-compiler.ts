@@ -198,6 +198,21 @@ function parseToken(value: any) {
   return valueNode;
 }
 
+function cast(value: any) {
+  switch (value) {
+    case "undefined":
+      return undefined;
+    case "null":
+      return null;
+    case "true":
+      return true;
+    case "false":
+      return false;
+    default:
+      return value;
+  }
+}
+
 function print(node: Node | null, basePath: string, parentName: string): any {
   if (!node) {
     return null;
@@ -207,15 +222,17 @@ function print(node: Node | null, basePath: string, parentName: string): any {
       const result = print(node.nextChild, basePath, parentName);
       const value = node.value;
       if (result) {
-        if (typeof result.value !== "object") {
-          const prefix = value.substring(0, result.start - 1);
-          const suffix = value.substring(result.end + 1, value.length);
-          return prefix + result.value + suffix;
+        const prefix = value.substring(0, result.start - 1);
+        const suffix = value.substring(result.end + 1, value.length);
+
+        if (prefix || suffix) {
+          const combined = prefix + result.value + suffix;
+          return cast(combined);
         } else {
           return result.value;
         }
       } else {
-        return result;
+        return value;
       }
     }
     case NodeKind.REFERENCE: {
@@ -249,17 +266,25 @@ function print(node: Node | null, basePath: string, parentName: string): any {
 
 function parse(content: any, root: any = {}, basePath: string): any {
   if (typeof content === "object") {
+    if (!content) {
+      const valueNode = new Node(NodeKind.VALUE, new Scope(0, -1));
+      valueNode.value = content;
+      console.log(valueNode);
+
+      return valueNode;
+    }
     const keys = Object.keys(content);
     keys.forEach(key => {
       let value = content[key];
-      let node = null;
+      let newValue = null;
       if (typeof value === "string") {
-        node = print(parseToken(value), basePath, key);
+        newValue = print(parseToken(value), basePath, key);
       } else if (typeof value === "object") {
         const child = {};
-        value = print(parse(value, child, basePath), basePath, key);
+        newValue = print(parse(value, child, basePath), basePath, key);
+      } else {
+        newValue = value;
       }
-      const newValue = node || value;
       root[key] = newValue;
       selfObj[key] = newValue;
     });

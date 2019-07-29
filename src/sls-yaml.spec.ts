@@ -30,6 +30,13 @@ describe("yaml-loader test suite", () => {
         expect(doc).toEqual({ config: "test" });
       });
     });
+    describe("When passing a undefined env reference", () => {
+      it("Should replace env var with undefined object", () => {
+        const content = Buffer.from("config: ${env:IAM_NOT_EXIST}");
+        const doc = yaml(content);
+        expect(doc).toEqual({ config: undefined });
+      });
+    });
     describe("When passing a env reference with prefix", () => {
       it("Should return prefix plus replace env var with it's value", () => {
         const content = Buffer.from("config: prefix-${env:NODE_ENV}");
@@ -59,6 +66,24 @@ describe("yaml-loader test suite", () => {
 `);
         const doc = yaml(content);
         expect(doc).toEqual({ version: 1, config: "version-1" });
+      });
+    });
+    describe("When passing a self reference with null value", () => {
+      it("Should return prefix plus replace self var with null", () => {
+        const content = Buffer.from(`
+  version: null
+  config: version-\${self:version}
+`);
+        const doc = yaml(content);
+        expect(doc).toEqual({ version: null, config: "version-null" });
+      });
+      it("Should replace self var with null", () => {
+        const content = Buffer.from(`
+  version: null
+  config: \${self:version}
+`);
+        const doc = yaml(content);
+        expect(doc).toEqual({ version: null, config: null });
       });
     });
     describe("When passing a file reference with env references", () => {
