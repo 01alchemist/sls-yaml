@@ -16,6 +16,13 @@ describe("yaml-loader test suite", () => {
         expect(doc).toEqual({ config: { key: "value" } });
       });
     });
+    describe("When passing a file reference without key", () => {
+      it("Should replace value with file content", () => {
+        const content = Buffer.from("${file(src/__mocks__/file.yml)}");
+        const doc = yaml(content);
+        expect(doc).toEqual({ key: "value" });
+      });
+    });
     describe("When passing a env reference", () => {
       it("Should replace env var with it's value", () => {
         const content = Buffer.from("config: ${env:NODE_ENV}");

@@ -247,21 +247,27 @@ function print(node: Node | null, basePath: string, parentName: string): any {
   return node;
 }
 
-function parse(content: any, root: any = {}, basePath: string) {
-  const keys = Object.keys(content);
-  keys.forEach(key => {
-    let value = content[key];
-    let node = null;
-    if (typeof value === "string") {
-      node = print(parseToken(value), basePath, key);
-    } else if (typeof value === "object") {
-      const child = {};
-      value = print(parse(value, child, basePath), basePath, key);
-    }
-    const newValue = node || value;
-    root[key] = newValue;
-    selfObj[key] = newValue;
-  });
+function parse(content: any, root: any = {}, basePath: string): any {
+  if (typeof content === "object") {
+    const keys = Object.keys(content);
+    keys.forEach(key => {
+      let value = content[key];
+      let node = null;
+      if (typeof value === "string") {
+        node = print(parseToken(value), basePath, key);
+      } else if (typeof value === "object") {
+        const child = {};
+        value = print(parse(value, child, basePath), basePath, key);
+      }
+      const newValue = node || value;
+      root[key] = newValue;
+      selfObj[key] = newValue;
+    });
+  } else if (typeof content === "string") {
+    return print(parseToken(content), basePath, "");
+  } else {
+    return content;
+  }
   return root;
 }
 
