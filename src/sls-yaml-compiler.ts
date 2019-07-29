@@ -209,8 +209,8 @@ function print(node: Node | null, basePath: string, parentName: string): any {
       if (result) {
         if (typeof result.value !== "object") {
           const prefix = value.substring(0, result.start - 1);
-          const sufix = value.substring(result.end, value.length - 1);
-          return prefix + result.value + sufix;
+          const suffix = value.substring(result.end + 1, value.length);
+          return prefix + result.value + suffix;
         } else {
           return result.value;
         }

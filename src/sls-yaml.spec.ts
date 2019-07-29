@@ -30,8 +30,29 @@ describe("yaml-loader test suite", () => {
         expect(doc).toEqual({ config: "test" });
       });
     });
+    describe("When passing a env reference with prefix", () => {
+      it("Should return prefix plus replace env var with it's value", () => {
+        const content = Buffer.from("config: prefix-${env:NODE_ENV}");
+        const doc = yaml(content);
+        expect(doc).toEqual({ config: "prefix-test" });
+      });
+    });
+    describe("When passing a env reference with suffix", () => {
+      it("Should return suffix plus replace env var with it's value", () => {
+        const content = Buffer.from("config: ${env:NODE_ENV}-suffix");
+        const doc = yaml(content);
+        expect(doc).toEqual({ config: "test-suffix" });
+      });
+    });
+    describe("When passing a env reference with prefix and suffix", () => {
+      it("Should return prefix and suffix plus replace env var with it's value", () => {
+        const content = Buffer.from("config: prefix-${env:NODE_ENV}-suffix");
+        const doc = yaml(content);
+        expect(doc).toEqual({ config: "prefix-test-suffix" });
+      });
+    });
     describe("When passing a self reference", () => {
-      it("Should replace env var with it's value", () => {
+      it("Should replace self var with it's value", () => {
         const content = Buffer.from(`
   version: 1
   config: version-\${self:version}
