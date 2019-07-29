@@ -1,0 +1,2 @@
+key: key+${global:config.env}
+value: value+${self:key}

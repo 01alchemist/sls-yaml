@@ -1,0 +1,137 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
+
+references:
+
+  workspace_root: &workspace_root
+    ~/repo
+
+  attach_workspace: &attach_workspace
+    attach_workspace:
+      at: *workspace_root
+      
+  restore_repo: &restore_repo
+    restore_cache:
+      keys:
+        - v1-repo-{{ .Branch }}-{{ .Revision }}
+        - v1-repo-{{ .Branch }}
+        - v1-repo
+
+  restore_yarn_cache: &restore_yarn_cache
+    restore_cache: 
+      keys:
+        - v1-yarn-cache-{{ checksum "yarn.lock" }}-{{ .Environment.CACHE_VERSION }}
+
+  save_yarn_cache: &save_yarn_cache
+    save_cache: 
+      key: v1-yarn-cache-{{ checksum "yarn.lock" }}-{{ .Environment.CACHE_VERSION }}
+      paths:
+        - ~/.npmrc
+        - node_modules
+        - .tools
+
+  yarn_install: &yarn_install
+    name: Installing
+    command: |
+      echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      yarn install --pure-lockfile
+
+  tools_install: &tools_install
+    name: Installing tools
+    command: |
+      mkdir -p .tools/
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./.tools/cc-test-reporter
+      chmod +x ./.tools/cc-test-reporter
+
+executors:
+  node:
+    docker:
+      - image: circleci/node:12
+    working_directory: *workspace_root
+    environment:
+      TZ: "/usr/share/zoneinfo/Europe/Berlin"
+
+jobs:
+  checkout_code:
+    executor: node
+    steps:
+      - *restore_repo
+      - checkout
+      - save_cache:
+          key: v1-repo-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - .
+            
+  install_pkg:
+    executor: node
+    steps:
+      - *restore_repo
+      - *restore_yarn_cache
+      - run: *yarn_install
+      - run: *tools_install
+      - *save_yarn_cache
+  
+  lint:
+    executor: node
+    steps:
+      - *restore_repo
+      - *restore_yarn_cache
+      - run:
+          command: yarn lint
+  
+  unit_test:
+    executor: node
+    steps:
+      - *restore_repo
+      - *restore_yarn_cache
+      - run:
+          command: yarn test
+          
+  build:
+    executor: node
+    steps:
+      - *restore_repo
+      - *restore_yarn_cache
+      - run: 
+          command: yarn build
+      - persist_to_workspace:
+          root: *workspace_root
+          paths:
+            - index.js
+            
+  publish_pkg:
+    executor: node
+    steps:
+      - *restore_repo
+      - *restore_yarn_cache
+      - *attach_workspace
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run: npm publish
+      
+      
+workflows:
+  version: 2
+
+  default:
+    jobs:
+      - checkout_code
+      - install_pkg:
+          requires:
+          - checkout_code
+      - lint:
+          requires:
+            - install_pkg
+      - unit_test:
+          requires:
+            - install_pkg
+      - build:
+          requires:
+            - install_pkg
+            - unit_test
+            - lint
+      - publish_pkg:
+          requires:
+            - build

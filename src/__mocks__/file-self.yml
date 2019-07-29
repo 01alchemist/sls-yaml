@@ -1,0 +1,3 @@
+a:
+  b: value-of-b
+key: key+${self:a.b}
