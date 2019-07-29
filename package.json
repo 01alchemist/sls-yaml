@@ -1,6 +1,6 @@
 {
   "name": "sls-yaml",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Serverless framework yaml extension parser",
   "main": "dist/index.js",
   "repository": "git@github.com:01alchemist/sls-yaml.git",

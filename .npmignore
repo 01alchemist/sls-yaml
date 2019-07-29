@@ -1,0 +1,8 @@
+.tools
+.circleci
+.eslintignore
+.eslintrc.js
+.vscode
+.history
+.prettierignore
+__mocks__
