@@ -89,6 +89,16 @@ jobs:
       - *restore_yarn_cache
       - run:
           command: yarn test
+          environment:
+            JEST_JUNIT_OUTPUT: "reports/junit/js-test-results.xml"
+      - run: 
+          command: ./.tools/cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.json coverage/lcov.info
+      - run: 
+          command: ./.tools/cc-test-reporter upload-coverage -i coverage/codeclimate.json
+      - store_test_results:
+          path: ./reports/junit
+      - store_artifacts:
+          path: ./reports/junit
           
   build:
     executor: node

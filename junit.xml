@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="24" failures="0" time="0.185">
+  <testsuite name="yaml-loader test suite" errors="0" failures="0" skipped="0" timestamp="2019-07-30T06:56:06" time="0.154" tests="24">
+    <testcase classname="yaml-loader test suite YAML standard spec test suite Test #1" name="yaml-loader test suite YAML standard spec test suite Test #1" time="0.004">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing yaml file path Should load yaml from path" name="yaml-loader test suite YAML extended test suite When passing yaml file path Should load yaml from path" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing yaml file buffer Should load yaml from path" name="yaml-loader test suite YAML extended test suite When passing yaml file buffer Should load yaml from path" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a yaml file reference Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a yaml file reference Should replace value with file content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a yaml file reference without key Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a yaml file reference without key Should replace value with file content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a json file reference Should replace value with file&apos;s content" name="yaml-loader test suite YAML extended test suite When passing a json file reference Should replace value with file&apos;s content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a text file reference Should replace value with file&apos;s content" name="yaml-loader test suite YAML extended test suite When passing a text file reference Should replace value with file&apos;s content" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference Should replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference Should replace env var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a undefined env reference Should replace env var with undefined object" name="yaml-loader test suite YAML extended test suite When passing a undefined env reference Should replace env var with undefined object" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference with prefix Should return prefix plus replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference with prefix Should return prefix plus replace env var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference with suffix Should return suffix plus replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference with suffix Should return suffix plus replace env var with it&apos;s value" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference with prefix and suffix Should return prefix and suffix plus replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference with prefix and suffix Should return prefix and suffix plus replace env var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a self reference Should replace self var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a self reference Should replace self var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should return prefix plus replace self var with null" name="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should return prefix plus replace self var with null" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should replace self var with null" name="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should replace self var with null" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with env references Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a file reference with env references Should replace value with file content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with self references Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a file reference with self references Should replace value with file content" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with self references within a file reference Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a file reference with self references within a file reference Should replace value with file content" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with dynamic self references within a file reference Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a file reference with dynamic self references within a file reference Should replace value with file content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:true values properly" name="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:true values properly" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:false values properly" name="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:false values properly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing an unknown function reference Should throw unknonw reference error" name="yaml-loader test suite YAML extended exception test suite When passing an unknown function reference Should throw unknonw reference error" time="0.01">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing integer values Should cast integer values properly" name="yaml-loader test suite YAML extended exception test suite When passing integer values Should cast integer values properly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing an unknown variable reference Should throw unknonw reference error" name="yaml-loader test suite YAML extended exception test suite When passing an unknown variable reference Should throw unknonw reference error" time="0.002">
+    </testcase>
+  </testsuite>
+</testsuites>

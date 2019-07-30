@@ -1,5 +1,5 @@
 ## Serverless YAML extension parser 
-[![CircleCI](https://circleci.com/gh/01alchemist/sls-yaml/tree/master.svg?style=svg)](https://circleci.com/gh/01alchemist/sls-yaml/tree/master)
+[![CircleCI](https://circleci.com/gh/01alchemist/sls-yaml/tree/master.svg?style=svg)](https://circleci.com/gh/01alchemist/sls-yaml/tree/master) [![Maintainability](https://api.codeclimate.com/v1/badges/d3b19c4c45ebf451faf3/maintainability)](https://codeclimate.com/github/01alchemist/sls-yaml/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/d3b19c4c45ebf451faf3/test_coverage)](https://codeclimate.com/github/01alchemist/sls-yaml/test_coverage)
 
 This tiny library will parse YAML extensions used in serverless framework.
 

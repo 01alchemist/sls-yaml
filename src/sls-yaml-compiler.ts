@@ -25,6 +25,8 @@ const functions: FunctionMap = {
         self: globalObj
       });
       return ymlObj;
+    } else if (ext === "json") {
+      return JSON.parse(fs.readFileSync(resolvedPath, "utf-8"));
     } else {
       return fs.readFileSync(resolvedPath, "utf-8");
     }
@@ -198,20 +200,20 @@ function parseToken(value: any) {
   return valueNode;
 }
 
-function cast(value: any) {
-  switch (value) {
-    case "undefined":
-      return undefined;
-    case "null":
-      return null;
-    case "true":
-      return true;
-    case "false":
-      return false;
-    default:
-      return value;
-  }
-}
+// function cast(value: any) {
+//   switch (value) {
+//     case "undefined":
+//       return undefined;
+//     case "null":
+//       return null;
+//     case "true":
+//       return true;
+//     case "false":
+//       return false;
+//     default:
+//       return value;
+//   }
+// }
 
 function print(node: Node | null, basePath: string, parentName: string): any {
   if (!node) {
@@ -227,7 +229,7 @@ function print(node: Node | null, basePath: string, parentName: string): any {
 
         if (prefix || suffix) {
           const combined = prefix + result.value + suffix;
-          return cast(combined);
+          return combined
         } else {
           return result.value;
         }
@@ -242,19 +244,20 @@ function print(node: Node | null, basePath: string, parentName: string): any {
       return new Result(result.value, start, end);
     }
     case NodeKind.FUNCTION: {
-      const func = functions[node.value.name];
+      const { name, arguments: _arguments } = node.value;
+      const func = functions[name];
       if (func) {
-        const result = func(...node.value.arguments, basePath, parentName);
+        const result = func(..._arguments, basePath, parentName);
         const { start, end } = node.scope;
         return new Result(result, start, end);
       }
       throw new Error(YamlError.UnknonwReference(name));
     }
     case NodeKind.VARIABLE: {
-      const name = node.value.name;
+      const { name, arguments: _arguments } = node.value;
       const func = functions[name];
       if (func) {
-        const result = func(...node.value.arguments);
+        const result = func(..._arguments);
         const { start, end } = node.scope;
         return new Result(result, start, end);
       }
@@ -286,12 +289,10 @@ function parse(content: any, root: any = {}, basePath: string): any {
       root[key] = newValue;
       selfObj[key] = newValue;
     });
-  } else if (typeof content === "string") {
-    return print(parseToken(content), basePath, "");
-  } else {
-    return content;
+    return root;
   }
-  return root;
+  // Convert all non-objects to string
+  return print(parseToken(content.toString()), basePath, "");
 }
 
 type CompileOptions = {
