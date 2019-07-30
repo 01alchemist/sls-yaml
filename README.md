@@ -54,6 +54,7 @@ This extension will inject variable from global scope.
 ```yaml 
 version : 1
 env: stage
+config: ${file(./common.yml)}
 ```
 
 - common.yml
@@ -76,6 +77,7 @@ This extension will inject variable from local scope.
 ```yaml 
 version : 1
 env: stage
+config: ${file(./common.yml)}
 ```
 
 - common.yml
@@ -89,5 +91,6 @@ endpoint: http://service:${self:port}
 version : 1
 env: stage
 config: 
+  port: 8080
   endpoint: http://service:8080
   ```
