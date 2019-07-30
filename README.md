@@ -1,4 +1,5 @@
-## Serverless YAML extension parser
+## Serverless YAML extension parser 
+[![CircleCI](https://circleci.com/gh/01alchemist/sls-yaml/tree/master.svg?style=svg)](https://circleci.com/gh/01alchemist/sls-yaml/tree/master)
 
 This tiny library will parse YAML extensions used in serverless framework.
 
