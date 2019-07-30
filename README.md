@@ -23,7 +23,7 @@ config: ${file(./common.yml)}
 endpoint: http://service-url
 ```
 
-- final.yml
+- Generated final yaml
 ```yaml
 version : 1
 env: dev
@@ -41,7 +41,7 @@ version : 1
 env: ${env:NODE_ENV}
 ```
 
-- final.yml
+- Generated final yaml
 ```yaml 
 version : 1
 env: development
@@ -62,7 +62,7 @@ config: ${file(./common.yml)}
 endpoint: http://service-${global:env}
 ```
 
-- final.yml
+- Generated final yaml
 ```yaml
 version : 1
 env: stage
@@ -86,7 +86,7 @@ port: 8080
 endpoint: http://service:${self:port}
 ```
 
-- final.yml
+- Generated final yaml
 ```yaml
 version : 1
 env: stage
