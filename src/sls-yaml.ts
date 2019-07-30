@@ -20,7 +20,7 @@ export function readYamlSync(pathOrData: Path | Buffer, parent?: ParentNode) {
   if (pathOrData instanceof Buffer) {
     data = pathOrData.toString();
   }
-  
+
   const doc = yaml.safeLoad(data);
   let globalObj = doc;
   if (parent) {

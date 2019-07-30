@@ -229,7 +229,7 @@ function print(node: Node | null, basePath: string, parentName: string): any {
 
         if (prefix || suffix) {
           const combined = prefix + result.value + suffix;
-          return combined
+          return combined;
         } else {
           return result.value;
         }
