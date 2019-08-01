@@ -244,5 +244,99 @@ describe("yaml-loader test suite", () => {
         );
       });
     });
+
+    describe("When passing an list with file reference", () => {
+      it("Should return concatenated list", () => {
+        const content = Buffer.from(
+          [
+            "list:",
+            "  - item 1",
+            "  - ${file(src/__mocks__/file.yml)}",
+            "  - item 2"
+          ].join("\n")
+        );
+        const doc = yaml(content);
+        expect(doc).toEqual({
+          list: ["item 1", { key: "value" }, "item 2"]
+        });
+      });
+    });
+
+    describe("When passing an list with variable reference", () => {
+      it("Should return concatenated list", () => {
+        const content = Buffer.from(
+          [
+            "name: variable-list",
+            "version: 1",
+            "list:",
+            "  - item 1",
+            "  - ${global:name}",
+            "  - ${self:version}",
+            "  - ${env:NODE_ENV}",
+            "  - item 2"
+          ].join("\n")
+        );
+        const doc = yaml(content);
+        expect(doc).toEqual({
+          name: "variable-list",
+          version: 1,
+          list: ["item 1", "variable-list", 1, "test", "item 2"]
+        });
+      });
+    });
+
+    describe("When passing a list of object with variable reference", () => {
+      it("Should return concatenated list", () => {
+        const content = Buffer.from(
+          [
+            "name: variable-list",
+            "version: 1",
+            "list:",
+            "  - key1: item 1",
+            "  - key2: ${global:name}",
+            "  - key3: ${self:version}",
+            "  - key4: ${env:NODE_ENV}",
+            "  - key5: item 2"
+          ].join("\n")
+        );
+        const doc = yaml(content);
+        expect(doc).toEqual({
+          name: "variable-list",
+          version: 1,
+          list: [
+            { key1: "item 1" },
+            { key2: "variable-list" },
+            { key3: 1 },
+            { key4: "test" },
+            { key5: "item 2" }
+          ]
+        });
+      });
+    });
+
+    describe("When passing a list of object with file reference", () => {
+      it("Should return concatenated list", () => {
+        const content = Buffer.from(
+          [
+            "name: variable-list",
+            "version: 1",
+            "list:",
+            "  - key1: item 1",
+            "  - key2: ${file(src/__mocks__/file.yml)}",
+            "  - key3: item 2"
+          ].join("\n")
+        );
+        const doc = yaml(content);
+        expect(doc).toEqual({
+          name: "variable-list",
+          version: 1,
+          list: [
+            { key1: "item 1" },
+            { key2: { key: "value" } },
+            { key3: "item 2" }
+          ]
+        });
+      });
+    });
   });
 });
