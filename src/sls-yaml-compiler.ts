@@ -308,7 +308,7 @@ export function compile({
 }: CompileOptions) {
   globalObj = _globalObj;
   selfObj = doc;
-  const root = {}
+  const root = {};
   const node = parse(doc, root, basePath);
   return node;
 }
