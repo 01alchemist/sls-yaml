@@ -244,5 +244,21 @@ describe("yaml-loader test suite", () => {
         );
       });
     });
+
+    describe("When passing a git:branch command", () => {
+      it("Should return result of command", () => {
+        const content = Buffer.from("branch: ${git:branch}");
+        const result = yaml(content);
+        expect(result).toEqual({ branch: "master" });
+      });
+    });
+
+    describe("When passing a git:sha1 command", () => {
+      it("Should return result of command", () => {
+        const content = Buffer.from("sha1: ${git:sha1}");
+        const result = yaml(content);
+        expect(result.sha1).toBeDefined();
+      });
+    });
   });
 });

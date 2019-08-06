@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { spawnSync } = require("child_process");
 const get = require("lodash.get");
 import readYamlSync from "./sls-yaml";
 
@@ -30,6 +31,20 @@ const functions: FunctionMap = {
     } else {
       return fs.readFileSync(resolvedPath, "utf-8");
     }
+  },
+  git: (name: string) => {
+    let cmds;
+    switch (name) {
+      case "branch":
+        cmds = ["rev-parse", "--abbrev-ref", "HEAD"];
+        break;
+      case "sha1":
+        cmds = ["rev-parse", "HEAD"];
+        break;
+    }
+    const result = spawnSync("git", cmds);
+    const output = result.output.toString().replace(/,|\n/gi, "");
+    return output;
   },
   env: (name: string) => {
     return process.env[name];
