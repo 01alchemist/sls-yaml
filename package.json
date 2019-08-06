@@ -1,6 +1,6 @@
 {
   "name": "sls-yaml",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "description": "Serverless framework yaml extension parser",
   "main": "dist/index.js",
   "typings": "src/index.ts",
@@ -20,7 +20,8 @@
     "prettier": "prettier --write '**/*.{js,json,ts,gql,graphql}'",
     "lint": "prettier --check '**/*.{js,json,ts,gql,graphql}'",
     "start": "webpack --watch",
-    "build": "webpack",
+    "build.dev": "webpack",
+    "build": "NODE_ENV=production webpack",
     "precommit": "lint-staged",
     "test": "NODE_ENV=test jest --ci --config=./jest.json --coverage --reporters=default --reporters=jest-junit"
   },

@@ -282,7 +282,7 @@ function print(node: Node | null, basePath: string, parentName: string): any {
   return node;
 }
 
-function parse(content: any, root: any = {}, basePath: string): any {
+function parse(content: any, parent: any = {}, basePath: string): any {
   if (typeof content === "object") {
     if (!content) {
       const valueNode = new Node(NodeKind.VALUE, new Scope(0, -1));
@@ -296,15 +296,15 @@ function parse(content: any, root: any = {}, basePath: string): any {
       if (typeof value === "string") {
         newValue = print(parseToken(value), basePath, key);
       } else if (typeof value === "object") {
-        const child = {};
+        const child = Array.isArray(value) ? [] : {};
         newValue = print(parse(value, child, basePath), basePath, key);
       } else {
         newValue = value;
       }
-      root[key] = newValue;
+      parent[key] = newValue;
       selfObj[key] = newValue;
     });
-    return root;
+    return parent;
   }
   // Convert all non-objects to string
   return print(parseToken(content.toString()), basePath, "");
@@ -323,6 +323,7 @@ export function compile({
 }: CompileOptions) {
   globalObj = _globalObj;
   selfObj = doc;
-  const node = parse(doc, {}, basePath);
+  const root = {};
+  const node = parse(doc, root, basePath);
   return node;
 }

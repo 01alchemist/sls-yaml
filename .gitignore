@@ -7,4 +7,4 @@ node_modules
 dist
 .history
 coverage
-*.xml
+junit.xml
