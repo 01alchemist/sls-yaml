@@ -8,8 +8,10 @@ This tiny library will parse YAML extensions used in serverless framework.
 - [Inject environment variable](#inject-environment-variable) `${env:NODE_ENV}`
 - [Inject global variables](#inject-global-variables) `${global:path.to.variable}`
 - [Inject local variables](#inject-local-variables) `${self:path.to.variable}`
-- [Inject current git branch](#inject-current-git-branch) `${git:branch}` r
-- [Inject last git commit hash](#inject-last-git-commit-hash) `${git:sha1}`
+- [Inject current git branch](#inject-current-git-branch)* `${git:branch}`
+- [Inject last git commit hash](#inject-last-git-commit-hash)* `${git:sha1}`
+
+`* - New extension not present in serverless yaml`
 
 ### Include external file
 This extension will include content of external yaml files.
