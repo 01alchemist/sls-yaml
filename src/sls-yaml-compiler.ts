@@ -1,276 +1,20 @@
-const fs = require("fs");
-const path = require("path");
-const { spawnSync } = require("child_process");
-const get = require("lodash.get");
-import readYamlSync from "./sls-yaml";
+import { NodeKind, Node, print, parseToken, Scope } from "./template-compiler";
 
-type FunctionMap = {
-  [key: string]: Function;
+type ParseArg = {
+  content: any;
+  parent: any;
+  basePath: string;
+  globalObj: any;
+  selfObj: any;
 };
 
-const YamlError: FunctionMap = {
-  UnknonwReference: (name: string) =>
-    `Unknonw reference error, "${name}" is not a known reference name`
-};
-
-let globalObj: any;
-let selfObj: any = {};
-
-const functions: FunctionMap = {
-  file: (uri: string, basePath: string, parentName: string) => {
-    const ext = uri.substring(uri.lastIndexOf(".") + 1, uri.length);
-    const resolvedPath = path.resolve(basePath, uri);
-    if (ext === "yml") {
-      const ymlObj = readYamlSync(resolvedPath, {
-        name: parentName,
-        self: globalObj
-      });
-      return ymlObj;
-    } else if (ext === "json") {
-      return JSON.parse(fs.readFileSync(resolvedPath, "utf-8"));
-    } else {
-      return fs.readFileSync(resolvedPath, "utf-8");
-    }
-  },
-  git: (name: string) => {
-    let cmds;
-    switch (name) {
-      case "branch":
-        cmds = ["rev-parse", "--abbrev-ref", "HEAD"];
-        break;
-      case "sha1":
-        cmds = ["rev-parse", "HEAD"];
-        break;
-    }
-    const result = spawnSync("git", cmds);
-    const output = result.output.toString().replace(/,|\n/gi, "");
-    return output;
-  },
-  env: (name: string) => {
-    return process.env[name];
-  },
-  global: (name: string) => {
-    return get(globalObj, name);
-  },
-  self: (name: string) => {
-    return get(selfObj, name);
-  },
-  helm: (template: string) => {
-    return `{{ ${template} }}`;
-  }
-};
-
-enum NodeKind {
-  VALUE,
-  REFERENCE,
-  FUNCTION,
-  VARIABLE
-}
-
-class Scope {
-  constructor(public start: number, public end: number = -1) {}
-}
-
-class Node {
-  value: any;
-  nextChild: Node | null = null;
-  prevChild: Node | null = null;
-  constructor(public kind: NodeKind, public scope: Scope) {}
-}
-
-class Result {
-  constructor(
-    public value: string,
-    public start: number,
-    public end: number = -1
-  ) {}
-}
-
-enum TokenKind {
-  REFERENCE,
-  // Brackets
-  LEFT_BRACE,
-  RIGHT_BRACE,
-  LEFT_BRACKET,
-  RIGHT_BRACKET,
-  LEFT_PARENTHESIS,
-  RIGHT_PARENTHESIS,
-
-  DOLLAR,
-  COLON,
-
-  DOT,
-  COMMA,
-  DEFAULT_VALUE
-}
-
-const tokens: any = {
-  $: TokenKind.DOLLAR,
-  "${": TokenKind.REFERENCE,
-  "{": TokenKind.LEFT_BRACE,
-  "}": TokenKind.RIGHT_BRACE,
-  "(": TokenKind.LEFT_PARENTHESIS,
-  ")": TokenKind.RIGHT_PARENTHESIS,
-  "[": TokenKind.LEFT_BRACKET,
-  "]": TokenKind.RIGHT_BRACKET,
-  ":": TokenKind.COLON
-};
-
-const tokenValues = Object.keys(tokens);
-
-function parseToken(value: any) {
-  let buffer: string = "";
-  const valueNode = new Node(NodeKind.VALUE, new Scope(0, value.length));
-  valueNode.value = value;
-  let node: Node | null = null;
-  let nodeStack: Node[] = [];
-  const charStream = value.split("");
-  /**
-   * Tokenize
-   */
-  charStream.forEach((char: string, i: number) => {
-    buffer += char;
-    /**
-     * Match single char tokens
-     */
-    if (tokenValues.indexOf(char) > -1) {
-      /**
-       * Reference open
-       */
-      if (tokens[char] === TokenKind.DOLLAR) {
-        buffer = char;
-      }
-      /**
-       * Function open
-       */
-      if (tokens[char] === TokenKind.LEFT_PARENTHESIS) {
-        const name = buffer.substring(0, buffer.length - 1);
-        const fnNode = new Node(NodeKind.FUNCTION, new Scope(i));
-        fnNode.value = {
-          name,
-          arguments: [],
-          rawValue: buffer
-        };
-        if (node) {
-          node.nextChild = fnNode;
-          fnNode.prevChild = node;
-        }
-        nodeStack.push(fnNode);
-        buffer = "";
-      }
-      /**
-       * Function close
-       */
-      if (tokens[char] === TokenKind.RIGHT_PARENTHESIS) {
-        buffer = buffer.substring(0, buffer.length - 1);
-        const fnNode = nodeStack.pop();
-        if (fnNode) {
-          fnNode.scope.end = i;
-          fnNode.value.arguments.push(...buffer.split(","));
-          fnNode.value.rawValue += buffer + char;
-        }
-        buffer = "";
-      }
-
-      /**
-       * Variable open
-       */
-      if (tokens[char] === TokenKind.COLON) {
-        const name = buffer.substring(0, buffer.length - 1);
-        const varNode = new Node(NodeKind.VARIABLE, new Scope(i));
-        varNode.value = {
-          name,
-          arguments: [],
-          rawValue: buffer
-        };
-        if (node) {
-          node.nextChild = varNode;
-        }
-        nodeStack.push(varNode);
-        buffer = "";
-      }
-      /**
-       * Variable close
-       */
-      if (tokens[char] === TokenKind.RIGHT_BRACE) {
-        if (node) {
-          node.scope.end = i;
-        }
-        const varNode = nodeStack.pop();
-        buffer = buffer.substring(0, buffer.length - 1);
-        if (varNode) {
-          varNode.scope.end = i;
-          varNode.value.arguments.push(...buffer.split(","));
-          varNode.value.rawValue += buffer;
-        }
-        buffer = "";
-      }
-    }
-
-    if (tokens[buffer] === TokenKind.REFERENCE) {
-      node = new Node(NodeKind.REFERENCE, new Scope(i));
-      buffer = "";
-    }
-  });
-  
-  valueNode.nextChild = node;
-
-  return valueNode;
-}
-
-function print(node: Node | null, basePath: string, parentName: string): any {
-  if (!node) {
-    return null;
-  }
-  switch (node.kind) {
-    case NodeKind.VALUE: {
-      const result = print(node.nextChild, basePath, parentName);
-      const value = node.value;
-      if (result) {
-        const prefix = value.substring(0, result.start - 1);
-        const suffix = value.substring(result.end + 1, value.length);
-
-        if (prefix || suffix) {
-          const combined = prefix + result.value + suffix;
-          return combined;
-        } else {
-          return result.value;
-        }
-      } else {
-        return value;
-      }
-    }
-    case NodeKind.REFERENCE: {
-      const valueNode: Node = <Node>node.nextChild;
-      const result = print(valueNode, basePath, parentName);
-      const { start, end } = node.scope;
-      return new Result(result.value, start, end);
-    }
-    case NodeKind.FUNCTION: {
-      const { name, arguments: _arguments } = node.value;
-      const func = functions[name];
-      if (func) {
-        const result = func(..._arguments, basePath, parentName);
-        const { start, end } = node.scope;
-        return new Result(result, start, end);
-      }
-      throw new Error(YamlError.UnknonwReference(name));
-    }
-    case NodeKind.VARIABLE: {
-      const { name, arguments: _arguments } = node.value;
-      const func = functions[name];
-      if (func) {
-        const result = func(..._arguments);
-        const { start, end } = node.scope;
-        return new Result(result, start, end);
-      }
-      throw new Error(YamlError.UnknonwReference(name));
-    }
-  }
-  return node;
-}
-
-function parse(content: any, parent: any = {}, basePath: string): any {
+function parse({
+  content,
+  parent = {},
+  basePath,
+  globalObj,
+  selfObj
+}: ParseArg): any {
   if (typeof content === "object") {
     if (!content) {
       const valueNode = new Node(NodeKind.VALUE, new Scope(0, -1));
@@ -282,10 +26,28 @@ function parse(content: any, parent: any = {}, basePath: string): any {
       let value = content[key];
       let newValue = null;
       if (typeof value === "string") {
-        newValue = print(parseToken(value), basePath, key);
+        newValue = print({
+          node: parseToken(value),
+          basePath,
+          parentName: key,
+          globalObj,
+          selfObj
+        });
       } else if (typeof value === "object") {
         const child = Array.isArray(value) ? [] : {};
-        newValue = print(parse(value, child, basePath), basePath, key);
+        newValue = print({
+          node: parse({
+            content: value,
+            parent: child,
+            basePath,
+            globalObj,
+            selfObj
+          }),
+          basePath,
+          parentName: key,
+          globalObj,
+          selfObj
+        });
       } else {
         newValue = value;
       }
@@ -295,7 +57,13 @@ function parse(content: any, parent: any = {}, basePath: string): any {
     return parent;
   }
   // Convert all non-objects to string
-  return print(parseToken(content.toString()), basePath, "");
+  return print({
+    node: parseToken(content.toString()),
+    basePath,
+    parentName: "",
+    globalObj,
+    selfObj
+  });
 }
 
 type CompileOptions = {
@@ -304,14 +72,9 @@ type CompileOptions = {
   basePath: string;
 };
 
-export function compile({
-  doc,
-  globalObj: _globalObj,
-  basePath
-}: CompileOptions) {
-  globalObj = _globalObj;
-  selfObj = doc;
-  const root = {};
-  const node = parse(doc, root, basePath);
+export function compile({ doc, globalObj, basePath }: CompileOptions) {
+  const selfObj = doc;
+  const parent = {};
+  const node = parse({ content: doc, parent, basePath, globalObj, selfObj });
   return node;
 }

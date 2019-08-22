@@ -1,6 +1,6 @@
 {
   "name": "sls-yaml",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "Serverless framework yaml extension parser",
   "main": "dist/index.js",
   "typings": "src/index.ts",
@@ -17,6 +17,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
+    "prepublish": "yarn build",
     "prettier": "prettier --write '**/*.{js,json,ts,gql,graphql}'",
     "lint": "prettier --check '**/*.{js,json,ts,gql,graphql}'",
     "start": "webpack --watch",
