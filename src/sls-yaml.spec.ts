@@ -1,7 +1,7 @@
 import yaml from "./sls-yaml";
 
 describe("yaml-loader test suite", () => {
-  xdescribe("YAML standard spec test suite", () => {
+  describe("YAML standard spec test suite", () => {
     it("Test #1", () => {
       const content = Buffer.from(`version: 1`);
       const doc = yaml(content);
@@ -9,7 +9,7 @@ describe("yaml-loader test suite", () => {
     });
   });
 
-  xdescribe("YAML extended test suite", () => {
+  describe("YAML extended test suite", () => {
     describe("When passing yaml file path", () => {
       it("Should load yaml from path", () => {
         const doc = yaml("src/__mocks__/file.yml");
@@ -199,7 +199,7 @@ describe("yaml-loader test suite", () => {
     });
   });
 
-  xdescribe("YAML extended exception test suite", () => {
+  describe("YAML extended exception test suite", () => {
     describe("When passing an unknown function reference", () => {
       it("Should throw unknonw reference error", () => {
         const content = Buffer.from(
