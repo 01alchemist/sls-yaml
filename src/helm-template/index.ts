@@ -19,7 +19,7 @@ function encodeHelmTemplates(data: string) {
         const result = `${key}: '${values
           .replace(/{{/gi, "%[")
           .replace(/}}/gi, "]%")}'`;
-        console.log({ line, key, values, result });
+        // console.log({ line, key, values, result });
         return result;
       }
       return line;
@@ -39,7 +39,7 @@ function decodeHelmTemplates(data: string) {
         const result = `${key}: ${values
           .replace(/%\[/gi, "{{")
           .replace(/]%/gi, "}}")}`;
-        console.log({ line, key, values, result });
+        // console.log({ line, key, values, result });
 
         return result;
       }

@@ -88,8 +88,13 @@ export class Scope {
 
 export class Node {
   value: any;
-  nextChild: Node | null = null;
-  prevChild: Node | null = null;
+  nextSibling: Node | null = null;
+  // prevSibling: Node | null = null;
+  firstChild: Node | null = null;
+  lastChild: Node | null = null;
+  // nextChild: Node | null = null;
+  // prevChild: Node | null = null;
+  // parent: Node | null = null;
   constructor(public kind: NodeKind, public scope: Scope) {}
 }
 
@@ -137,7 +142,8 @@ export function parseToken(value: any) {
   let buffer: string = "";
   const valueNode = new Node(NodeKind.VALUE, new Scope(0, value.length));
   valueNode.value = value;
-  let node: Node | null = null;
+  let firstChild: Node | null = null;
+  let lastChild: Node | null = null;
   let nodeStack: Node[] = [];
   const charStream = value.split("");
   /**
@@ -166,9 +172,9 @@ export function parseToken(value: any) {
           arguments: [],
           rawValue: buffer
         };
-        if (node) {
-          node.nextChild = fnNode;
-          fnNode.prevChild = node;
+        if (lastChild) {
+          lastChild.firstChild = fnNode;
+          // fnNode.parent = lastChild;
         }
         nodeStack.push(fnNode);
         buffer = "";
@@ -198,8 +204,8 @@ export function parseToken(value: any) {
           arguments: [],
           rawValue: buffer
         };
-        if (node) {
-          node.nextChild = varNode;
+        if (lastChild) {
+          lastChild.firstChild = varNode;
         }
         nodeStack.push(varNode);
         buffer = "";
@@ -208,8 +214,8 @@ export function parseToken(value: any) {
        * Variable close
        */
       if (tokens[char] === TokenKind.RIGHT_BRACE) {
-        if (node) {
-          node.scope.end = i;
+        if (lastChild) {
+          lastChild.scope.end = i;
         }
         const varNode = nodeStack.pop();
         buffer = buffer.substring(0, buffer.length - 1);
@@ -223,12 +229,17 @@ export function parseToken(value: any) {
     }
 
     if (tokens[buffer] === TokenKind.REFERENCE) {
-      node = new Node(NodeKind.REFERENCE, new Scope(i));
+      const node = new Node(NodeKind.REFERENCE, new Scope(i));
+      if (!firstChild) {
+        firstChild = node;
+      }
+      if (lastChild) lastChild.nextSibling = node;
+      lastChild = node;
       buffer = "";
     }
   });
 
-  valueNode.nextChild = node;
+  valueNode.firstChild = firstChild;
 
   return valueNode;
 }
@@ -253,31 +264,43 @@ export function print({
   }
   switch (node.kind) {
     case NodeKind.VALUE: {
+      let child = node.firstChild;
+      while (child) {
+        if (child) console.log("NodeKind:", NodeKind[child.kind]);
+        let sibling = child.firstChild;
+        while (sibling) {
+          if (sibling) console.log("NodeKind:", NodeKind[sibling.kind]);
+          sibling = sibling.nextSibling;
+        }
+        child = child.nextSibling;
+      }
       const result = print({
-        node: node.nextChild,
+        node: node.nextSibling,
         basePath,
         parentName,
         globalObj,
         selfObj
       });
+      return result;
+      // const value = node.value;
+      // let finalValue = "";
+      // if (result) {
+      //   const prefix = value.substring(0, result.start - 1);
+      //   const suffix = value.substring(result.end + 1, value.length);
 
-      const value = node.value;
-      if (result) {
-        const prefix = value.substring(0, result.start - 1);
-        const suffix = value.substring(result.end + 1, value.length);
-
-        if (prefix || suffix) {
-          const combined = prefix + result.value + suffix;
-          return combined;
-        } else {
-          return result.value;
-        }
-      } else {
-        return value;
-      }
+      //   if (prefix || suffix) {
+      //     const combined = prefix + result.value + suffix;
+      //     finalValue = combined.trim();
+      //   } else {
+      //     finalValue = result.value;
+      //   }
+      // } else {
+      //   finalValue = value;
+      // }
+      // return finalValue;
     }
     case NodeKind.REFERENCE: {
-      const valueNode: Node = <Node>node.nextChild;
+      const valueNode: Node = <Node>node.nextSibling;
       const result = print({
         node: valueNode,
         basePath,
