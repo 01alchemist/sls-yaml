@@ -1,7 +1,7 @@
 import yaml from "./sls-yaml";
 
 describe("yaml-loader test suite", () => {
-  describe("YAML standard spec test suite", () => {
+  xdescribe("YAML standard spec test suite", () => {
     it("Test #1", () => {
       const content = Buffer.from(`version: 1`);
       const doc = yaml(content);
@@ -9,7 +9,7 @@ describe("yaml-loader test suite", () => {
     });
   });
 
-  describe("YAML extended test suite", () => {
+  xdescribe("YAML extended test suite", () => {
     describe("When passing yaml file path", () => {
       it("Should load yaml from path", () => {
         const doc = yaml("src/__mocks__/file.yml");
@@ -199,7 +199,7 @@ describe("yaml-loader test suite", () => {
     });
   });
 
-  describe("YAML extended exception test suite", () => {
+  xdescribe("YAML extended exception test suite", () => {
     describe("When passing an unknown function reference", () => {
       it("Should throw unknonw reference error", () => {
         const content = Buffer.from(
@@ -351,6 +351,17 @@ describe("yaml-loader test suite", () => {
         const content = Buffer.from("sha1: ${git:sha1}");
         const result = yaml(content);
         expect(result.sha1).toBeDefined();
+      });
+    });
+  });
+
+  describe("Helm template syntax test suite", () => {
+    describe("When passing a helm template syntax", () => {
+      it("Should pass-through those syntax", () => {
+        const content = Buffer.from("replicas: ${helm:.Values.replicas}");
+        const result = yaml(content);
+        console.log(result);
+        expect(result.replicas).toBe("{{ .Values.replicas }}");
       });
     });
   });

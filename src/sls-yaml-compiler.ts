@@ -54,6 +54,9 @@ const functions: FunctionMap = {
   },
   self: (name: string) => {
     return get(selfObj, name);
+  },
+  helm: (template: string) => {
+    return `{{ ${template} }}`;
   }
 };
 
@@ -209,26 +212,11 @@ function parseToken(value: any) {
       buffer = "";
     }
   });
-
+  
   valueNode.nextChild = node;
 
   return valueNode;
 }
-
-// function cast(value: any) {
-//   switch (value) {
-//     case "undefined":
-//       return undefined;
-//     case "null":
-//       return null;
-//     case "true":
-//       return true;
-//     case "false":
-//       return false;
-//     default:
-//       return value;
-//   }
-// }
 
 function print(node: Node | null, basePath: string, parentName: string): any {
   if (!node) {
