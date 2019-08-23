@@ -62,6 +62,15 @@ describe("yaml-loader test suite", () => {
         expect(doc).toEqual({ config: "test" });
       });
     });
+
+    describe("When passing a env reference", () => {
+      it("Should replace env var with it's value", () => {
+        const content = Buffer.from("config: ${env:NODE_ENV}");
+        const doc = yaml(content);
+        expect(doc).toEqual({ config: "test" });
+      });
+    });
+
     describe("When passing a undefined env reference", () => {
       it("Should replace env var with undefined object", () => {
         const content = Buffer.from("config: ${env:IAM_NOT_EXIST}");
@@ -338,13 +347,13 @@ describe("yaml-loader test suite", () => {
         });
       });
     });
-    describe("When passing a git:branch command", () => {
-      it("Should return result of command", () => {
-        const content = Buffer.from("branch: ${git:branch}");
-        const result = yaml(content);
-        expect(result).toEqual({ branch: "master" });
-      });
-    });
+    // describe("When passing a git:branch command", () => {
+    //   it("Should return result of command", () => {
+    //     const content = Buffer.from("branch: ${git:branch}");
+    //     const result = yaml(content);
+    //     expect(result).toEqual({ branch: "master" });
+    //   });
+    // });
 
     describe("When passing a git:sha1 command", () => {
       it("Should return result of command", () => {
@@ -355,13 +364,69 @@ describe("yaml-loader test suite", () => {
     });
   });
 
+  describe("Multi template syntax test suite", () => {
+    describe("When passing a multiple template syntax", () => {
+      it("Should evaluate all templates", () => {
+        const content = Buffer.from(
+          [
+            "name: service-name",
+            "version: 1",
+            "description: ${self:name}@${self:version}"
+          ].join("\n")
+        );
+        const result = yaml(content);
+        
+        expect(result).toEqual({
+          name: "service-name",
+          version: 1,
+          description:"service-name@1"
+        });
+      });
+    });
+  });
+
   describe("Helm template syntax test suite", () => {
     describe("When passing a helm template syntax", () => {
       it("Should pass-through those syntax", () => {
-        const content = Buffer.from("replicas: ${helm:.Values.replicas}");
+        const content = Buffer.from("replicas: ${helm:'.Values.replicas'}");
         const result = yaml(content);
-        console.log(result);
-        expect(result.replicas).toBe("{{ .Values.replicas }}");
+        expect(result.replicas).toBe("'{{ .Values.replicas }}'");
+      });
+      it("Should pass-through utf-8 encoding", () => {
+        const content = Buffer.from(
+          "template: ${file(./src/__mocks__/helm-template.yml, utf-8)}"
+        );
+        const result = yaml(content);
+        expect(result.template).toBe(
+          "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n"
+        );
+      });
+      it("Should pass-through multiple syntax", () => {
+        const content = Buffer.from(
+          "template: ${file(./src/__mocks__/helm-template.yml, helm)}"
+        );
+        const result = yaml(content);
+        expect(result.template).toBe(
+          "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n"
+        );
+      });
+      it("Should pass-through and compile ${} templates syntax", () => {
+        const content = Buffer.from(
+          "template: ${file(./src/__mocks__/helm-template-dynamic.yml, helm)}"
+        );
+        const result = yaml(content);
+        expect(result.template).toBe(
+          [
+            "version: 1",
+            "name: micro-service",
+            "image: ",
+            "  repository: {{ .Values.image.repository }}",
+            "  tag: {{ .Values.image.tag }}-1",
+            "metadata: ",
+            "  label: micro-service",
+            ""
+          ].join("\n")
+        );
       });
     });
   });
