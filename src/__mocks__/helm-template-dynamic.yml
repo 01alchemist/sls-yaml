@@ -1,2 +1,7 @@
 version: 1
-image: {{ .Values.image.repository }}:{{ .Values.image.tag }}-${self:version}
+name: micro-service
+image:
+  repository: {{ .Values.image.repository }}
+  tag: {{ .Values.image.tag }}-${self:version}
+metadata:
+  label: ${self:name}

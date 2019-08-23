@@ -77,7 +77,8 @@ export const functions: FunctionMap = {
 
 export enum NodeKind {
   VALUE,
-  REFERENCE,
+  VALUE_FRAGMENT,
+  TEMPLATE,
   FUNCTION,
   VARIABLE
 }
@@ -88,13 +89,13 @@ export class Scope {
 
 export class Node {
   value: any;
+
+  parent: Node | null = null;
+
   nextSibling: Node | null = null;
   // prevSibling: Node | null = null;
   firstChild: Node | null = null;
   lastChild: Node | null = null;
-  // nextChild: Node | null = null;
-  // prevChild: Node | null = null;
-  // parent: Node | null = null;
   constructor(public kind: NodeKind, public scope: Scope) {}
 }
 
@@ -107,7 +108,7 @@ export class Result {
 }
 
 export enum TokenKind {
-  REFERENCE,
+  TEMPLATE_OPEN,
   // Brackets
   LEFT_BRACE,
   RIGHT_BRACE,
@@ -126,7 +127,7 @@ export enum TokenKind {
 
 export const tokens: any = {
   $: TokenKind.DOLLAR,
-  "${": TokenKind.REFERENCE,
+  "${": TokenKind.TEMPLATE_OPEN,
   "{": TokenKind.LEFT_BRACE,
   "}": TokenKind.RIGHT_BRACE,
   "(": TokenKind.LEFT_PARENTHESIS,
@@ -138,12 +139,33 @@ export const tokens: any = {
 
 export const tokenValues = Object.keys(tokens);
 
+function createNode(
+  parent: Node | null,
+  kind: NodeKind,
+  scope: Scope,
+  value?: any
+) {
+  const node = new Node(kind, scope);
+  if (value) node.value = value;
+  if (parent) {
+    node.parent = parent;
+    if (!parent.firstChild) parent.firstChild = node;
+    if (parent.lastChild) {
+      parent.lastChild.nextSibling = node;
+    }
+    parent.lastChild = node;
+  }
+  return node;
+}
+
+/**
+ * Parse template tokens and create node tree
+ * @param {string} value
+ */
 export function parseToken(value: any) {
   let buffer: string = "";
-  const valueNode = new Node(NodeKind.VALUE, new Scope(0, value.length));
-  valueNode.value = value;
-  let firstChild: Node | null = null;
-  let lastChild: Node | null = null;
+  const parent = new Node(NodeKind.VALUE, new Scope(0, value.length));
+  parent.value = value;
   let nodeStack: Node[] = [];
   const charStream = value.split("");
   /**
@@ -156,92 +178,113 @@ export function parseToken(value: any) {
      */
     if (tokenValues.indexOf(char) > -1) {
       /**
-       * Reference open
+       * Template open
        */
       if (tokens[char] === TokenKind.DOLLAR) {
+        if (buffer.length > 1) {
+          const start = i - buffer.length - 1;
+          const end = i - 1;
+          createNode(
+            parent,
+            NodeKind.VALUE_FRAGMENT,
+            new Scope(start, end),
+            buffer.substring(0, buffer.length - 1)
+          );
+        }
         buffer = char;
-      }
-      /**
-       * Function open
-       */
-      if (tokens[char] === TokenKind.LEFT_PARENTHESIS) {
-        const name = buffer.substring(0, buffer.length - 1);
-        const fnNode = new Node(NodeKind.FUNCTION, new Scope(i));
-        fnNode.value = {
-          name,
-          arguments: [],
-          rawValue: buffer
-        };
-        if (lastChild) {
-          lastChild.firstChild = fnNode;
-          // fnNode.parent = lastChild;
-        }
-        nodeStack.push(fnNode);
-        buffer = "";
-      }
-      /**
-       * Function close
-       */
-      if (tokens[char] === TokenKind.RIGHT_PARENTHESIS) {
-        buffer = buffer.substring(0, buffer.length - 1);
-        const fnNode = nodeStack.pop();
-        if (fnNode) {
-          fnNode.scope.end = i;
-          fnNode.value.arguments.push(...buffer.split(",").map(v => v.trim()));
-          fnNode.value.rawValue += buffer + char;
-        }
-        buffer = "";
       }
 
       /**
-       * Variable open
+       * Only process function and variable tokens if there is a template node
        */
-      if (tokens[char] === TokenKind.COLON) {
-        const name = buffer.substring(0, buffer.length - 1);
-        const varNode = new Node(NodeKind.VARIABLE, new Scope(i));
-        varNode.value = {
-          name,
-          arguments: [],
-          rawValue: buffer
-        };
-        if (lastChild) {
-          lastChild.firstChild = varNode;
+      if (parent.lastChild && parent.lastChild.kind === NodeKind.TEMPLATE) {
+        /**
+         * Function open
+         */
+        if (tokens[char] === TokenKind.LEFT_PARENTHESIS) {
+          const name = buffer.substring(0, buffer.length - 1);
+          const fnNode = createNode(
+            parent.lastChild,
+            NodeKind.FUNCTION,
+            new Scope(i),
+            {
+              name,
+              arguments: [],
+              rawValue: buffer
+            }
+          );
+
+          nodeStack.push(fnNode);
+          buffer = "";
         }
-        nodeStack.push(varNode);
-        buffer = "";
+        /**
+         * Function close
+         */
+        if (tokens[char] === TokenKind.RIGHT_PARENTHESIS) {
+          buffer = buffer.substring(0, buffer.length - 1);
+          const fnNode = nodeStack.pop();
+          if (fnNode) {
+            fnNode.scope.end = i;
+            fnNode.value.arguments.push(
+              ...buffer.split(",").map(v => v.trim())
+            );
+            fnNode.value.rawValue += buffer + char;
+          }
+          buffer = "";
+        }
+
+        /**
+         * Variable open
+         */
+        if (tokens[char] === TokenKind.COLON) {
+          const name = buffer.substring(0, buffer.length - 1);
+          const varNode = createNode(
+            parent.lastChild,
+            NodeKind.VARIABLE,
+            new Scope(i),
+            {
+              name,
+              arguments: [],
+              rawValue: buffer
+            }
+          );
+          nodeStack.push(varNode);
+          buffer = "";
+        }
       }
+
       /**
-       * Variable close
+       * Template close
        */
       if (tokens[char] === TokenKind.RIGHT_BRACE) {
-        if (lastChild) {
-          lastChild.scope.end = i;
-        }
-        const varNode = nodeStack.pop();
+        const childNode = nodeStack.pop();
+
         buffer = buffer.substring(0, buffer.length - 1);
-        if (varNode) {
-          varNode.scope.end = i;
-          varNode.value.arguments.push(...buffer.split(","));
-          varNode.value.rawValue += buffer;
+        if (childNode) {
+          if (childNode.parent) {
+            childNode.parent.scope.end = i;
+          }
+          childNode.scope.end = i;
+          childNode.value.arguments.push(...buffer.split(","));
+          childNode.value.rawValue += buffer;
         }
         buffer = "";
       }
     }
 
-    if (tokens[buffer] === TokenKind.REFERENCE) {
-      const node = new Node(NodeKind.REFERENCE, new Scope(i));
-      if (!firstChild) {
-        firstChild = node;
-      }
-      if (lastChild) lastChild.nextSibling = node;
-      lastChild = node;
+    if (tokens[buffer] === TokenKind.TEMPLATE_OPEN) {
+      createNode(parent, NodeKind.TEMPLATE, new Scope(i));
       buffer = "";
     }
   });
 
-  valueNode.firstChild = firstChild;
+  if (buffer.length > 1) {
+    const start = charStream.length - buffer.length;
+    const end = charStream.length;
+    createNode(parent, NodeKind.VALUE_FRAGMENT, new Scope(start, end), buffer);
+  }
 
-  return valueNode;
+  return parent;
 }
 
 type PrintArg = {
@@ -252,6 +295,10 @@ type PrintArg = {
   selfObj: any;
 };
 
+/**
+ * Print compiled template
+ * @param options
+ */
 export function print({
   node,
   basePath,
@@ -265,44 +312,38 @@ export function print({
   switch (node.kind) {
     case NodeKind.VALUE: {
       let child = node.firstChild;
+      let initialValue = node.value;
+      let finalValue: any = child ? "" : initialValue;
       while (child) {
-        if (child) console.log("NodeKind:", NodeKind[child.kind]);
-        let sibling = child.firstChild;
-        while (sibling) {
-          if (sibling) console.log("NodeKind:", NodeKind[sibling.kind]);
-          sibling = sibling.nextSibling;
+        const result = print({
+          node: child,
+          basePath,
+          parentName,
+          globalObj,
+          selfObj
+        });
+
+        if (result) {
+          const value = result.value;
+          if (
+            finalValue === "" ||
+            (typeof value === "object" && value !== null)
+          ) {
+            finalValue = value;
+          } else {
+            finalValue += value;
+          }
+        } else {
+          finalValue = result;
         }
         child = child.nextSibling;
       }
-      const result = print({
-        node: node.nextSibling,
-        basePath,
-        parentName,
-        globalObj,
-        selfObj
-      });
-      return result;
-      // const value = node.value;
-      // let finalValue = "";
-      // if (result) {
-      //   const prefix = value.substring(0, result.start - 1);
-      //   const suffix = value.substring(result.end + 1, value.length);
-
-      //   if (prefix || suffix) {
-      //     const combined = prefix + result.value + suffix;
-      //     finalValue = combined.trim();
-      //   } else {
-      //     finalValue = result.value;
-      //   }
-      // } else {
-      //   finalValue = value;
-      // }
-      // return finalValue;
+      return finalValue;
     }
-    case NodeKind.REFERENCE: {
-      const valueNode: Node = <Node>node.nextSibling;
+    case NodeKind.TEMPLATE: {
+      const child: Node = <Node>node.firstChild;
       const result = print({
-        node: valueNode,
+        node: child,
         basePath,
         parentName,
         globalObj,

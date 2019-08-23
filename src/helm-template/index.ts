@@ -15,12 +15,13 @@ function encodeHelmTemplates(data: string) {
     .map(line => {
       if (line) {
         const [key, ...value] = line.split(":");
-        const values = value.join(":");
-        const result = `${key}: '${values
-          .replace(/{{/gi, "%[")
-          .replace(/}}/gi, "]%")}'`;
-        // console.log({ line, key, values, result });
-        return result;
+        const values = value.join(":").trim();
+        if (values && values.match(/({(\s*){)(\W|\w)*(}(\s*)})/gi)) {
+          const result = `${key}: '${values
+            .replace(/{\s*{/gi, "%[")
+            .replace(/}\s*}/gi, "]%")}'`;
+          return result;
+        }
       }
       return line;
     })
@@ -34,13 +35,12 @@ function decodeHelmTemplates(data: string) {
       if (line) {
         const [key, ...value] = line.split(":");
         let values = value.join(":").trim();
-        values = values.substring(1, values.length - 1).trim();
-
+        if (values && values.match(/(%\[)(\W|\w)*(]%)/gi)) {
+          values = values.substring(1, values.length - 1).trim();
+        }
         const result = `${key}: ${values
           .replace(/%\[/gi, "{{")
           .replace(/]%/gi, "}}")}`;
-        // console.log({ line, key, values, result });
-
         return result;
       }
       return line;
@@ -76,5 +76,6 @@ export function readHelmTemplateSync(
 
   const compiledDoc = compile({ doc, globalObj, basePath });
   const yamlData = yaml.safeDump(compiledDoc);
-  return decodeHelmTemplates(yamlData);
+  const decodedYaml = decodeHelmTemplates(yamlData);
+  return decodedYaml;
 }
