@@ -212,7 +212,7 @@ function parseToken(value: any) {
       buffer = "";
     }
   });
-  
+
   valueNode.nextChild = node;
 
   return valueNode;
