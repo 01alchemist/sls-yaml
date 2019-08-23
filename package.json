@@ -1,6 +1,6 @@
 {
   "name": "sls-yaml",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Serverless framework yaml extension parser",
   "main": "dist/index.js",
   "typings": "src/index.ts",
