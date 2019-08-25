@@ -424,6 +424,9 @@ describe("yaml-loader test suite", () => {
             "  tag: {{ .Values.image.tag }}-1",
             "metadata: ",
             "  label: micro-service",
+            "  hosts: ",
+            "    - domain",
+            "    - {{ .Values.host }}",
             ""
           ].join("\n")
         );

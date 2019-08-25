@@ -45,6 +45,7 @@ export const functions: FunctionMap = {
   git: ([name]: string[]) => {
     let cmds;
     switch (name) {
+      /* istanbul ignore next */
       case "branch":
         cmds = ["rev-parse", "--abbrev-ref", "HEAD"];
         break;
@@ -71,6 +72,7 @@ export const functions: FunctionMap = {
     if ((c0 === `"` && cl === `"`) || (c0 === `'` && cl === `'`)) {
       return `'{{ ${template.substring(1, template.length - 1)} }}'`;
     }
+    /* istanbul ignore next */
     return `{{ ${template} }}`;
   }
 };
@@ -307,6 +309,7 @@ export function print({
   selfObj
 }: PrintArg): any {
   if (!node) {
+    /* istanbul ignore next */
     return null;
   }
   switch (node.kind) {
@@ -334,6 +337,7 @@ export function print({
             finalValue += value;
           }
         } else {
+          /* istanbul ignore next */
           finalValue = result;
         }
         child = child.nextSibling;

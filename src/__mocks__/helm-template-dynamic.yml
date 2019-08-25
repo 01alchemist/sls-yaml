@@ -5,3 +5,6 @@ image:
   tag: {{ .Values.image.tag }}-${self:version}
 metadata:
   label: ${self:name}
+  hosts:
+    - domain
+    - {{ .Values.host }}
