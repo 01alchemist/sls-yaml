@@ -16,9 +16,9 @@ function encodeHelmTemplates(data: string) {
       if (line) {
         let values = line;
         let key;
-        let isArrayElement = false
+        let isArrayElement = false;
         if (line.trim().startsWith("-")) {
-          isArrayElement = true
+          isArrayElement = true;
           values = line;
         } else {
           const [_key, ...value] = line.split(":");
@@ -27,14 +27,13 @@ function encodeHelmTemplates(data: string) {
         }
 
         if (values && values.match(/({(\s*){)(\W|\w)*(}(\s*)})/gi)) {
-          let encodedValues
-          if(isArrayElement) {
-            const [indent, ...rest] = values.split("-")
-            const arrayValue = rest.join("-").trim()
+          let encodedValues;
+          if (isArrayElement) {
+            const [indent, ...rest] = values.split("-");
+            const arrayValue = rest.join("-").trim();
             encodedValues = `${indent}- '${arrayValue
               .replace(/{\s*{/gi, "%[")
               .replace(/}\s*}/gi, "]%")}'`;
-              
           } else {
             encodedValues = `'${values
               .replace(/{\s*{/gi, "%[")
@@ -56,10 +55,10 @@ function decodeHelmTemplates(data: string) {
       if (line) {
         let values = line;
         let key;
-        let isArrayElement = false
+        let isArrayElement = false;
         if (line.trim().startsWith("-")) {
           values = line;
-          isArrayElement = true
+          isArrayElement = true;
         } else {
           const [_key, ...value] = line.split(":");
           key = _key;
@@ -67,10 +66,10 @@ function decodeHelmTemplates(data: string) {
         }
 
         if (values && values.match(/(%\[)(\W|\w)*(]%)/gi)) {
-          if(isArrayElement) {
-            const [indent, ...reset] = values.split("-")
-            let arrayValue = reset.join("-").trim()
-            arrayValue = arrayValue.substring(1, arrayValue.length - 1).trim()
+          if (isArrayElement) {
+            const [indent, ...reset] = values.split("-");
+            let arrayValue = reset.join("-").trim();
+            arrayValue = arrayValue.substring(1, arrayValue.length - 1).trim();
             values = `${indent}- ${arrayValue}`;
           } else {
             values = values.substring(1, values.length - 1).trim();
@@ -79,7 +78,7 @@ function decodeHelmTemplates(data: string) {
         const decodedValues = `${values
           .replace(/%\[/gi, "{{")
           .replace(/]%/gi, "}}")}`;
-          
+
         const result = key ? `${key}: ${decodedValues}` : decodedValues;
         return result;
       }
@@ -117,7 +116,7 @@ export function readHelmTemplateSync(
 
   const compiledDoc = compile({ doc, globalObj, basePath });
   const yamlData = yaml.safeDump(compiledDoc);
-  
+
   const decodedYaml = decodeHelmTemplates(yamlData);
   return decodedYaml;
 }

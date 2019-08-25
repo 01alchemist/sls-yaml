@@ -375,11 +375,11 @@ describe("yaml-loader test suite", () => {
           ].join("\n")
         );
         const result = yaml(content);
-        
+
         expect(result).toEqual({
           name: "service-name",
           version: 1,
-          description:"service-name@1"
+          description: "service-name@1"
         });
       });
     });
