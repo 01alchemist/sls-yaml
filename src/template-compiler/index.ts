@@ -74,6 +74,9 @@ export const functions: FunctionMap = {
     }
     /* istanbul ignore next */
     return `{{ ${template} }}`;
+  },
+  replace: ([source, substr, newSubstr]: string[]) => {
+    return source.replace(substr, newSubstr);
   }
 };
 
@@ -166,8 +169,9 @@ function createNode(
  */
 export function parseToken(value: any) {
   let buffer: string = "";
-  const parent = new Node(NodeKind.VALUE, new Scope(0, value.length));
-  parent.value = value;
+  const parentNode = new Node(NodeKind.VALUE, new Scope(0, value.length));
+  parentNode.value = value;
+  let lastParent: Node | null = parentNode;
   let nodeStack: Node[] = [];
   const charStream = value.split("");
   /**
@@ -187,27 +191,29 @@ export function parseToken(value: any) {
           const start = i - buffer.length - 1;
           const end = i - 1;
           createNode(
-            parent,
+            lastParent,
             NodeKind.VALUE_FRAGMENT,
             new Scope(start, end),
             buffer.substring(0, buffer.length - 1)
           );
         }
+
         buffer = char;
       }
 
       /**
        * Only process function and variable tokens if there is a template node
        */
-      if (parent.lastChild && parent.lastChild.kind === NodeKind.TEMPLATE) {
+      if (lastParent && lastParent.kind === NodeKind.TEMPLATE) {
         /**
-         * Function open
+         * Variable or Function open
          */
-        if (tokens[char] === TokenKind.LEFT_PARENTHESIS) {
+        const isVariable = tokens[char] === TokenKind.COLON;
+        if (tokens[char] === TokenKind.LEFT_PARENTHESIS || isVariable) {
           const name = buffer.substring(0, buffer.length - 1);
-          const fnNode = createNode(
-            parent.lastChild,
-            NodeKind.FUNCTION,
+          const childNode = createNode(
+            lastParent,
+            isVariable ? NodeKind.VARIABLE : NodeKind.FUNCTION,
             new Scope(i),
             {
               name,
@@ -216,66 +222,52 @@ export function parseToken(value: any) {
             }
           );
 
-          nodeStack.push(fnNode);
-          buffer = "";
-        }
-        /**
-         * Function close
-         */
-        if (tokens[char] === TokenKind.RIGHT_PARENTHESIS) {
-          buffer = buffer.substring(0, buffer.length - 1);
-          const fnNode = nodeStack.pop();
-          if (fnNode) {
-            fnNode.scope.end = i;
-            fnNode.value.arguments.push(
-              ...buffer.split(",").map(v => v.trim())
-            );
-            fnNode.value.rawValue += buffer + char;
-          }
-          buffer = "";
-        }
-
-        /**
-         * Variable open
-         */
-        if (tokens[char] === TokenKind.COLON) {
-          const name = buffer.substring(0, buffer.length - 1);
-          const varNode = createNode(
-            parent.lastChild,
-            NodeKind.VARIABLE,
+          childNode.firstChild = createNode(
+            childNode,
+            NodeKind.VALUE,
             new Scope(i),
-            {
-              name,
-              arguments: [],
-              rawValue: buffer
-            }
+            name
           );
-          nodeStack.push(varNode);
+
+          nodeStack.push(childNode);
           buffer = "";
         }
-      }
 
-      /**
-       * Template close
-       */
-      if (tokens[char] === TokenKind.RIGHT_BRACE) {
-        const childNode = nodeStack.pop();
+        /**
+         * Template close
+         */
+        if (tokens[char] === TokenKind.RIGHT_BRACE) {
+          const childNode = nodeStack.pop();
+          if (childNode) {
+            const end =
+              buffer.length - (childNode.kind === NodeKind.FUNCTION ? 2 : 1);
+            buffer = buffer.substring(0, end);
+            if (childNode.parent) {
+              childNode.parent.scope.end = i;
+            }
+            childNode.scope.end = i;
+            const _arguments = buffer.split(",").map(v => {
+              v = v.trim();
+              createNode(childNode, NodeKind.VALUE, new Scope(i), v);
+              return v;
+            });
 
-        buffer = buffer.substring(0, buffer.length - 1);
-        if (childNode) {
-          if (childNode.parent) {
-            childNode.parent.scope.end = i;
+            childNode.value.arguments = _arguments;
+            childNode.value.rawValue += buffer;
           }
-          childNode.scope.end = i;
-          childNode.value.arguments.push(...buffer.split(","));
-          childNode.value.rawValue += buffer;
+
+          buffer = "";
+          lastParent =
+            lastParent && lastParent.parent && lastParent.parent.parent;
         }
-        buffer = "";
       }
     }
 
     if (tokens[buffer] === TokenKind.TEMPLATE_OPEN) {
-      createNode(parent, NodeKind.TEMPLATE, new Scope(i));
+      if (lastParent && lastParent.kind === NodeKind.TEMPLATE) {
+        lastParent = lastParent.firstChild;
+      }
+      lastParent = createNode(lastParent, NodeKind.TEMPLATE, new Scope(i));
       buffer = "";
     }
   });
@@ -283,10 +275,15 @@ export function parseToken(value: any) {
   if (buffer.length > 1) {
     const start = charStream.length - buffer.length;
     const end = charStream.length;
-    createNode(parent, NodeKind.VALUE_FRAGMENT, new Scope(start, end), buffer);
+    createNode(
+      parentNode,
+      NodeKind.VALUE_FRAGMENT,
+      new Scope(start, end),
+      buffer
+    );
   }
 
-  return parent;
+  return parentNode;
 }
 
 type PrintArg = {
@@ -356,11 +353,52 @@ export function print({
       const { start, end } = node.scope;
       return new Result(result.value, start, end);
     }
-    case NodeKind.FUNCTION: {
-      const { name, arguments: _arguments } = node.value;
-      const func = functions[name];
+    case NodeKind.FUNCTION:
+    case NodeKind.VARIABLE: {
+      let child = node.firstChild;
+      let functionName = "unknown";
+      if (child) {
+        functionName = child.value;
+        child = child.nextSibling;
+      }
+      const _arguments = [];
+
+      while (child) {
+        if (child.kind === NodeKind.VALUE) {
+          _arguments.push(child.value);
+        } else {
+          console.log(child);
+
+          const result = print({
+            node: child,
+            basePath,
+            parentName,
+            globalObj,
+            selfObj
+          });
+          _arguments.push(result.value);
+        }
+        child = child.nextSibling;
+      }
+      console.log("_arguments:", _arguments);
+
+      const func = functions[functionName];
       if (func) {
-        const result = func(_arguments, {
+        const __arguments = _arguments.map((arg: any) => {
+          if (arg instanceof Node) {
+            const result = print({
+              node: arg,
+              basePath,
+              parentName,
+              globalObj,
+              selfObj
+            });
+            return result.value;
+          } else {
+            return arg;
+          }
+        });
+        const result = func(__arguments, {
           basePath,
           parentName,
           globalObj,
@@ -369,18 +407,18 @@ export function print({
         const { start, end } = node.scope;
         return new Result(result, start, end);
       }
-      throw new Error(YamlError.UnknonwReference(name));
+      throw new Error(YamlError.UnknonwReference(functionName));
     }
-    case NodeKind.VARIABLE: {
-      const { name, arguments: _arguments } = node.value;
-      const func = functions[name];
-      if (func) {
-        const result = func(_arguments, { globalObj, selfObj });
-        const { start, end } = node.scope;
-        return new Result(result, start, end);
-      }
-      throw new Error(YamlError.UnknonwReference(name));
-    }
+    // {
+    //   const { name, arguments: _arguments } = node.value;
+    //   const func = functions[name];
+    //   if (func) {
+    //     const result = func(_arguments, { globalObj, selfObj });
+    //     const { start, end } = node.scope;
+    //     return new Result(result, start, end);
+    //   }
+    //   throw new Error(YamlError.UnknonwReference(name));
+    // }
   }
   return node;
 }
