@@ -23,14 +23,21 @@ export function readYamlSync(pathOrData: Path | Buffer, parent?: ParentNode) {
 
   const doc = yaml.safeLoad(data);
   let globalObj = doc;
+  let parentName = "";
   if (parent) {
+    parentName = parent.name;
     globalObj = {
       ...parent.self,
       [parent.name]: doc
     };
   }
 
-  const compiledDoc = compile({ doc, globalObj, basePath });
+  const compiledDoc = compile({
+    doc,
+    globalObj,
+    parentName,
+    basePath
+  });
   return compiledDoc;
 }
 
