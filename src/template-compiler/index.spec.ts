@@ -2,7 +2,7 @@ const path = require("path");
 import { functions, parse, emitNode } from ".";
 import { printNodes } from "./utils";
 
-xdescribe("Template compiler test suite", () => {
+describe("Template compiler test suite", () => {
   describe("When passing a helm template path to file function", () => {
     it("Should load from disk", () => {
       const data = functions.file(["./__mocks__/helm-template.yml", "helm"], {
@@ -18,7 +18,7 @@ xdescribe("Template compiler test suite", () => {
   });
 });
 
-xdescribe("Template compiler parser test suite", () => {
+describe("Template compiler parser test suite", () => {
   describe("When passing a string", () => {
     it("Should parse string correctly", () => {
       const content = "Service Name";
@@ -122,7 +122,7 @@ xdescribe("Template compiler parser test suite", () => {
 });
 
 describe("Template compiler emitter test suite", () => {
-  xdescribe("When passing a string", () => {
+  describe("When passing a string", () => {
     it("Should emit string correctly", () => {
       const content = "Service Name";
       const rootNode = parse({
@@ -133,7 +133,7 @@ describe("Template compiler emitter test suite", () => {
     });
   });
 
-  xdescribe("When passing a string with variable template", () => {
+  describe("When passing a string with variable template", () => {
     it("Should emit single string correctly", () => {
       const content = "ServiceName@${self:version}";
       const rootNode = parse({
@@ -144,7 +144,7 @@ describe("Template compiler emitter test suite", () => {
     });
   });
 
-  xdescribe("When passing a string with function template", () => {
+  describe("When passing a string with function template", () => {
     it("Should emit string correctly", () => {
       const content = {
         version: "v1.0.0",
@@ -166,7 +166,7 @@ describe("Template compiler emitter test suite", () => {
     });
   });
 
-  xdescribe("When passing an object with nested template with default value", () => {
+  describe("When passing an object with nested template with default value", () => {
     it("Should emit nested template value correctly", () => {
       const content = {
         version: "v1.0.0",
@@ -210,7 +210,7 @@ describe("Template compiler emitter test suite", () => {
   });
 
   describe("When passing an array", () => {
-    xit("Should emit array correctly", () => {
+    it("Should emit array correctly", () => {
       const content = { hosts: ["0.0.0.0", "127.0.0.1"] };
       const rootNode = parse({
         content
@@ -220,7 +220,7 @@ describe("Template compiler emitter test suite", () => {
       });
       expect(result).toEqual({ hosts: ["0.0.0.0", "127.0.0.1"] });
     });
-    xit("Should emit self template array correctly", () => {
+    it("Should emit self template array correctly", () => {
       const content = {
         domain: "01alchemist.com",
         hosts: ["0.0.0.0", "127.0.0.1", "${self:domain}"]
@@ -228,7 +228,6 @@ describe("Template compiler emitter test suite", () => {
       const rootNode = parse({
         content
       });
-      console.log(printNodes(rootNode));
       const result = emitNode({
         node: rootNode
       });
@@ -245,7 +244,6 @@ describe("Template compiler emitter test suite", () => {
       const rootNode = parse({
         content
       });
-      console.log(printNodes(rootNode));
       const result = emitNode({
         node: rootNode
       });

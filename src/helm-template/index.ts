@@ -107,14 +107,21 @@ export function readHelmTemplateSync(
   const doc = yaml.safeLoad(data);
 
   let globalObj = doc;
+  let parentName = "";
   if (parent) {
+    parentName = parent.name;
     globalObj = {
       ...parent.self,
       [parent.name]: doc
     };
   }
 
-  const compiledDoc = compile({ doc, globalObj, basePath });
+  const compiledDoc = compile({
+    doc,
+    globalObj,
+    basePath,
+    parentName
+  });
   const yamlData = yaml.safeDump(compiledDoc);
 
   const decodedYaml = decodeHelmTemplates(yamlData);

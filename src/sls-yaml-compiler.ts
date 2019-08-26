@@ -13,7 +13,6 @@ export function compile({
   basePath,
   parentName = ""
 }: CompileOptions) {
-  const selfObj = doc;
   const parent = new Node(NodeKind.GROUP, new Scope(0));
   const node = parse({ content: doc, parent });
   
@@ -22,8 +21,6 @@ export function compile({
     basePath,
     parentName,
     globalObj,
-    selfObj,
-    rootName: ""
   });
   return compiledJson;
 }

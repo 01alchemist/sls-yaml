@@ -18,7 +18,7 @@ export const YamlError: FunctionMap = {
 export const functions: FunctionMap = {
   file: (
     [uri, encoding]: [string, string],
-    { basePath, parentName, globalObj }: any
+    { basePath, parentName, globalObj, selfObj }: any
   ) => {
     const ext = uri.substring(uri.lastIndexOf(".") + 1, uri.length);
     const resolvedPath = path.resolve(basePath, uri);
@@ -32,9 +32,10 @@ export const functions: FunctionMap = {
       });
     }
     if (ext === "yml") {
+      console.log({ globalObj, selfObj });
       const ymlObj = readYamlSync(resolvedPath, {
         name: parentName,
-        self: globalObj
+        self: selfObj
       });
       return ymlObj;
     } else if (ext === "json") {
@@ -177,7 +178,7 @@ function createNode(
   value?: any
 ) {
   const node = new Node(kind, scope);
-  if (value) node.value = value;
+  if (value !== undefined) node.value = value;
   if (parent) {
     node.parent = parent;
     if (!parent.firstChild) parent.firstChild = node;
@@ -297,8 +298,7 @@ export function parseToken(value: any, parent: Node | null = null) {
       buffer = "";
     }
   });
-
-  if (buffer.length > 1) {
+  if (buffer.length > 0) {
     const start = charStream.length - buffer.length;
     const end = charStream.length;
     createNode(
@@ -315,7 +315,6 @@ export function parseToken(value: any, parent: Node | null = null) {
 type EmitNodeArg = {
   node: Node | null;
   basePath?: string;
-  rootName?: string;
   parentName?: string;
   globalObj?: any;
   selfObj?: any;
@@ -330,16 +329,24 @@ type EmitNodeArg = {
 export function emitNode({
   node,
   basePath = ".",
-  rootName = "",
   parentName = "",
-  globalObj = {},
-  selfObj = {},
+  globalObj = null,
+  selfObj = null,
   thisObj = {},
   context = {}
 }: EmitNodeArg): any {
+  if (!selfObj) {
+    selfObj = {};
+  }
+  if (!globalObj) {
+    globalObj = selfObj;
+  } else if (parentName) {
+    globalObj[parentName] = selfObj;
+  }
+  // console.log(printNodes(node));
+
   const options = {
     basePath,
-    rootName,
     parentName,
     globalObj,
     selfObj,
@@ -454,8 +461,7 @@ export function emitNode({
 
       let func = context[functionName];
       func = func || functions[functionName];
-      console.log("globalObj:", globalObj);
-      
+
       if (func) {
         const __arguments = _arguments.map((arg: any) => {
           if (arg instanceof Node) {
@@ -502,6 +508,9 @@ export function parse({ content, parent = null }: ParseArg): any {
     });
     return lastParent;
   }
-  // Convert all non-objects to string
-  return parseToken(content.toString(), parent);
+  if (typeof content === "string") {
+    return parseToken(content, parent);
+  } else {
+    return createNode(parent, NodeKind.VALUE, new Scope(0), content);
+  }
 }

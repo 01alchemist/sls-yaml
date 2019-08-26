@@ -22,13 +22,13 @@ export function readYamlSync(pathOrData: Path | Buffer, parent?: ParentNode) {
   }
 
   const doc = yaml.safeLoad(data);
-  let globalObj = doc;
+  let globalObj = {};
   let parentName = "";
   if (parent) {
     parentName = parent.name;
     globalObj = {
       ...parent.self,
-      [parent.name]: doc
+      [parent.name]: {}
     };
   }
 
@@ -38,6 +38,7 @@ export function readYamlSync(pathOrData: Path | Buffer, parent?: ParentNode) {
     parentName,
     basePath
   });
+
   return compiledDoc;
 }
 

@@ -2,10 +2,15 @@ import yaml from "./sls-yaml";
 
 describe("yaml-loader test suite", () => {
   describe("YAML standard spec test suite", () => {
-    xit("Test #1", () => {
+    xit("Should return number value", () => {
       const content = Buffer.from(`version: 1`);
       const doc = yaml(content);
       expect(doc).toEqual({ version: 1 });
+    });
+    xit("Should return string value", () => {
+      const content = Buffer.from(`version: "1"`);
+      const doc = yaml(content);
+      expect(doc).toEqual({ version: "1" });
     });
   });
 
@@ -146,7 +151,7 @@ describe("yaml-loader test suite", () => {
       });
     });
     describe("When passing a file reference with self references within a file reference", () => {
-      xit("Should replace value with file content", () => {
+      it("Should replace value with file content", () => {
         const content = Buffer.from(
           "config: ${file(src/__mocks__/file-file-self.yml)}"
         );
@@ -436,7 +441,7 @@ describe("yaml-loader test suite", () => {
 
   describe("Replace test suite", () => {
     describe("When passing a string and replace pattern", () => {
-      it("Should replace string", () => {
+      xit("Should replace string", () => {
         const content = Buffer.from(
           [
             "name: service",
