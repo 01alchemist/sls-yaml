@@ -28,14 +28,14 @@ export const functions: FunctionMap = {
     if (encoding === "helm") {
       return readHelmTemplateSync(fs.readFileSync(resolvedPath), {
         name: parentName,
-        self: globalObj
+        global: globalObj
       });
     }
     if (ext === "yml") {
       console.log({ globalObj, selfObj });
       const ymlObj = readYamlSync(resolvedPath, {
         name: parentName,
-        self: selfObj
+        global: globalObj
       });
       return ymlObj;
     } else if (ext === "json") {

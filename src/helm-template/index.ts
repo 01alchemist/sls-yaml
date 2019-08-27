@@ -1,11 +1,7 @@
 import { compile } from "../sls-yaml-compiler";
+import { ParentObject } from '~/types';
 const fs = require("fs");
 const yaml = require("js-yaml");
-
-type ParentNode = {
-  name: string;
-  self: any;
-};
 
 type Path = string;
 
@@ -89,7 +85,7 @@ function decodeHelmTemplates(data: string) {
 
 export function readHelmTemplateSync(
   pathOrData: Path | Buffer,
-  parent?: ParentNode
+  parent?: ParentObject
 ) {
   let data,
     basePath = "./";
@@ -106,14 +102,13 @@ export function readHelmTemplateSync(
 
   const doc = yaml.safeLoad(data);
 
-  let globalObj = doc;
+  let globalObj: any = {};
+  let selfObj: any = {};
   let parentName = "";
   if (parent) {
     parentName = parent.name;
-    globalObj = {
-      ...parent.self,
-      [parent.name]: doc
-    };
+    globalObj = parent.global;
+    globalObj[parentName] = selfObj;
   }
 
   const compiledDoc = compile({
