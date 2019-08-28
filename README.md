@@ -26,7 +26,7 @@ const compiledYamlAsJsonObject = yaml(YAML_FILE_PATH_OR_BUFFER);
 
 - [Inject current git branch](#inject-current-git-branch) `${git:branch}`
 - [Inject last git commit hash](#inject-last-git-commit-hash) `${git:sha1}`
-- [String replace](#string-replace) `${replace(${self:version}, /\\./gi, - )}`
+- [String replace](#string-replace) `${replace(str, searchPattern, replaceValue )}`
 
 `* - New extension not present in serverless yaml`
 
@@ -175,7 +175,9 @@ image.tag: ${git:sha1}
 ```
 
 ### String replace
-
+```ts
+replace(str:string, searchPattern:RegExp|string, replaceValue:string )
+```
 This extension will returns a new string with some or all matches of a pattern replaced by a replacement. The pattern can be a string or a RegExp, and the replacement can be a string or a function to be called for each match. If pattern is a string, only the first occurrence will be replaced.
 
 - config.yml
