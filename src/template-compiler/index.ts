@@ -18,17 +18,17 @@ export const UnknonwReference = (name: string) =>
 
 type FunctionParameters = {
   basePath: string;
-  parentName: string;
-  parentPath: string;
-  globalObj: any;
-  selfObj: any;
-  parentObj: any;
+  parentName?: string;
+  parentPath?: string;
+  globalObj?: any;
+  selfObj?: any;
+  parentObj?: any;
 };
 
 export const functions: FunctionMap = {
   file: (
     [uri, encoding],
-    { basePath, parentName, globalObj, parentPath, parentObj }
+    { basePath, parentName, globalObj, parentPath = "", parentObj }
   ) => {
     const ext = uri.substring(uri.lastIndexOf(".") + 1, uri.length);
     const resolvedPath = path.resolve(basePath, uri);

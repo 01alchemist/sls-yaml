@@ -5,7 +5,7 @@ const yaml = require("js-yaml");
 
 export function readYamlSync(
   pathOrData: Path | Buffer,
-  parent?: ParentObject|null,
+  parent?: ParentObject | null,
   context: any = {}
 ) {
   let data,
