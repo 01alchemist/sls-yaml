@@ -13,9 +13,8 @@ function encodeHelmTemplates(data: string) {
         let key;
         let isArrayElement = false;
         const [_key, ...value] = line.split(":");
-
-        if (_key.trim().startsWith(" -") && value[0] !== " ") {
-          console.log("_key:", _key.trim());
+        // console.log("_key:", _key.trim(), "value:", value);
+        if (_key.trim().startsWith("-") && value.length === 0) {
           isArrayElement = true;
           values = line;
         } else {
@@ -56,9 +55,13 @@ function decodeHelmTemplates(data: string) {
         let values = line;
         let key;
         let isArrayElement = false;
+        // console.log("line:", line);
+
         const [_key, ...value] = line.split(":");
-        if (_key.trim().startsWith(" -") && value[0] !== " ") {
-          console.log("_key:", _key.trim());
+
+        console.log("_key:", _key.trim(), { line, value });
+
+        if (_key.trim().startsWith("-") && value[0] !== " ") {
           isArrayElement = true;
           values = line;
         } else {
@@ -104,9 +107,11 @@ export function readHelmTemplateSync(
     data = pathOrData.toString();
   }
   data = encodeHelmTemplates(data);
-  console.log(data);
 
+  // console.log("data:", data);
   const doc = yaml.safeLoad(data);
+  // console.log("doc:", doc);
+
   let globalObj: any = null;
   let parentPath: any = null;
   if (parent) {
@@ -121,6 +126,7 @@ export function readHelmTemplateSync(
   });
   let yamlData;
   try {
+    console.log(util.inspect(compiledDoc, { depth: null }));
     yamlData = yaml.safeDump(compiledDoc);
   } catch (e) {
     console.log(e);
