@@ -205,7 +205,7 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit nested template reg express correctly", () => {
       const content = {
         version: "v1.0.0",
-        name: "ServiceName@${replace(${self:version, v0.0.0},/\\./gi, -)}"
+        name: "ServiceName@${replace(${ self : version, v0.0.0 }, /\\./gi, - )}"
       };
       const rootNode = parse({
         content

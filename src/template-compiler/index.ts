@@ -275,7 +275,7 @@ export function parseToken(value: any, parent: Node | null = null) {
          */
         const isVariable = tokens[char] === TokenKind.COLON;
         if (tokens[char] === TokenKind.LEFT_PARENTHESIS || isVariable) {
-          const name = buffer.substring(0, buffer.length - 1);
+          const name = buffer.substring(0, buffer.length - 1).trim();
           const childNode = createNode(
             lastParent,
             isVariable ? NodeKind.VARIABLE : NodeKind.FUNCTION,
