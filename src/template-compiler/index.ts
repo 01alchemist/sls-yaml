@@ -10,18 +10,25 @@ import { printNodes } from "./utils";
 if (printNodes) {
 }
 type FunctionMap = {
-  [key: string]: Function;
+  [key: string]: (args: string[], parameters: FunctionParameters) => any;
 };
 
-export const YamlError: FunctionMap = {
-  UnknonwReference: (name: string) =>
-    `Unknonw reference error, "${name}" is not a known reference name`
+export const UnknonwReference = (name: string) =>
+  `Unknonw reference error, "${name}" is not a known reference name`;
+
+type FunctionParameters = {
+  basePath: string;
+  parentName: string;
+  parentPath: string;
+  globalObj: any;
+  selfObj: any;
+  parentObj: any;
 };
 
 export const functions: FunctionMap = {
   file: (
-    [uri, encoding]: [string, string],
-    { basePath, parentName, globalObj, parentPath, parentObj }: any
+    [uri, encoding],
+    { basePath, parentName, globalObj, parentPath, parentObj }
   ) => {
     const ext = uri.substring(uri.lastIndexOf(".") + 1, uri.length);
     const resolvedPath = path.resolve(basePath, uri);
@@ -86,7 +93,7 @@ export const functions: FunctionMap = {
     const output = result.output.toString().replace(/,|\n/gi, "");
     return output;
   },
-  env: ([name]: string[]) => {
+  env: ([name]) => {
     return process.env[name];
   },
   global: ([name]: string[], { globalObj }: any) => {
@@ -535,7 +542,7 @@ export function emitNode({
         });
         return result;
       }
-      throw new Error(YamlError.UnknonwReference(functionName));
+      throw new Error(UnknonwReference(functionName));
     }
   }
   /* istanbul ignore next */

@@ -3,7 +3,11 @@ import { Path, ParentObject } from "./types";
 const fs = require("fs");
 const yaml = require("js-yaml");
 
-export function readYamlSync(pathOrData: Path | Buffer, parent?: ParentObject) {
+export function readYamlSync(
+  pathOrData: Path | Buffer,
+  parent?: ParentObject|null,
+  context: any = {}
+) {
   let data,
     basePath = "./";
 
@@ -27,7 +31,8 @@ export function readYamlSync(pathOrData: Path | Buffer, parent?: ParentObject) {
     doc,
     globalObj,
     parentPath,
-    basePath
+    basePath,
+    context
   });
 
   return compiledDoc;

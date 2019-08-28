@@ -549,4 +549,24 @@ describe("yaml-loader test suite", () => {
       });
     });
   });
+
+  describe("Custom extension test suite", () => {
+    describe("When passing a constum context", () => {
+      it("Should use custom functions", () => {
+        const content = Buffer.from(
+          [
+            "name: service",
+            "version: v1.0.2",
+            "subset: service@${custom(${self:version})}"
+          ].join("\n")
+        );
+        const result = yaml(content, null, {
+          custom: ([arg]: string[]) => {
+            return `${arg}-beta`;
+          }
+        });
+        expect(result.subset).toBe("service@v1.0.2-beta");
+      });
+    });
+  });
 });
