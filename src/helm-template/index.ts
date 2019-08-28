@@ -1,6 +1,7 @@
 import { compile } from "../sls-yaml-compiler";
 import { ParentObject, Path } from "~/types";
 const fs = require("fs");
+const util = require("util");
 const yaml = require("js-yaml");
 
 function encodeHelmTemplates(data: string) {
@@ -11,11 +12,13 @@ function encodeHelmTemplates(data: string) {
         let values = line;
         let key;
         let isArrayElement = false;
-        if (line.trim().startsWith("-")) {
+        const [_key, ...value] = line.split(":");
+
+        if (_key.trim().startsWith(" -") && value[0] !== " ") {
+          console.log("_key:", _key.trim());
           isArrayElement = true;
           values = line;
         } else {
-          const [_key, ...value] = line.split(":");
           key = _key;
           values = value.join(":").trim();
         }
@@ -43,6 +46,9 @@ function encodeHelmTemplates(data: string) {
 }
 
 function decodeHelmTemplates(data: string) {
+  if (!data) {
+    return data;
+  }
   const lines = data.split("\n");
   return lines
     .map(line => {
@@ -50,11 +56,12 @@ function decodeHelmTemplates(data: string) {
         let values = line;
         let key;
         let isArrayElement = false;
-        if (line.trim().startsWith("-")) {
-          values = line;
+        const [_key, ...value] = line.split(":");
+        if (_key.trim().startsWith(" -") && value[0] !== " ") {
+          console.log("_key:", _key.trim());
           isArrayElement = true;
+          values = line;
         } else {
-          const [_key, ...value] = line.split(":");
           key = _key;
           values = value.join(":").trim();
         }
@@ -97,6 +104,7 @@ export function readHelmTemplateSync(
     data = pathOrData.toString();
   }
   data = encodeHelmTemplates(data);
+  console.log(data);
 
   const doc = yaml.safeLoad(data);
   let globalObj: any = null;
@@ -111,9 +119,16 @@ export function readHelmTemplateSync(
     parentPath,
     basePath
   });
-
-  const yamlData = yaml.safeDump(compiledDoc);
+  let yamlData;
+  try {
+    yamlData = yaml.safeDump(compiledDoc);
+  } catch (e) {
+    console.log(e);
+    console.log(util.inspect(compiledDoc, { depth: null }));
+  }
 
   const decodedYaml = decodeHelmTemplates(yamlData);
+  console.log(decodedYaml);
+
   return decodedYaml;
 }
