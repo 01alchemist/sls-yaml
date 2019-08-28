@@ -3,7 +3,7 @@
   "version": "1.0.20",
   "description": "Serverless framework yaml extension parser",
   "main": "dist/index.js",
-  "typings": "src/index.ts",
+  "typings": "dist/index.d.ts",
   "repository": "git@github.com:01alchemist/sls-yaml.git",
   "author": "Nidin Vinayakan <01@01alchemist.com>",
   "files": [
