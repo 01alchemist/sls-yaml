@@ -1,5 +1,5 @@
 import { compile } from "./sls-yaml-compiler";
-import { Path, ParentObject } from './types';
+import { Path, ParentObject } from "./types";
 const fs = require("fs");
 const yaml = require("js-yaml");
 
@@ -16,20 +16,17 @@ export function readYamlSync(pathOrData: Path | Buffer, parent?: ParentObject) {
   }
 
   const doc = yaml.safeLoad(data);
-  let globalObj: any = {};
-  let selfObj: any = {};
-  let parentName = "";
+  let globalObj: any = null;
+  let parentPath: any = null;
   if (parent) {
-    parentName = parent.name;
     globalObj = parent.global;
-    globalObj[parentName] = selfObj;
+    parentPath = parent.parentPath;
   }
 
   const compiledDoc = compile({
     doc,
     globalObj,
-    selfObj,
-    parentName,
+    parentPath,
     basePath
   });
 

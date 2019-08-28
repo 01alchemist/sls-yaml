@@ -1,11 +1,14 @@
 const fs = require("fs");
+// const util = require("util");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const get = require("lodash.get");
+const set = require("lodash.set");
 import readYamlSync from "../sls-yaml";
 import { readHelmTemplateSync } from "../helm-template";
-// import { printNodes } from "./utils";
-
+import { printNodes } from "./utils";
+if (printNodes) {
+}
 type FunctionMap = {
   [key: string]: Function;
 };
@@ -18,31 +21,55 @@ export const YamlError: FunctionMap = {
 export const functions: FunctionMap = {
   file: (
     [uri, encoding]: [string, string],
-    { basePath, parentName, globalObj, selfObj }: any
+    { basePath, parentName, globalObj, parentPath, parentObj }: any
   ) => {
     const ext = uri.substring(uri.lastIndexOf(".") + 1, uri.length);
     const resolvedPath = path.resolve(basePath, uri);
     if (encoding === "utf-8") {
       return fs.readFileSync(resolvedPath, "utf-8");
     }
-    if (encoding === "helm") {
-      return readHelmTemplateSync(fs.readFileSync(resolvedPath), {
-        name: parentName,
-        global: globalObj
-      });
+
+    /**
+     * If there is no parent
+     * Create parentObj and assign self and global obj accordingly
+     */
+    if (!parentObj) {
+      parentObj = {};
     }
-    if (ext === "yml") {
-      console.log({ globalObj, selfObj });
-      const ymlObj = readYamlSync(resolvedPath, {
-        name: parentName,
-        global: globalObj
-      });
-      return ymlObj;
-    } else if (ext === "json") {
-      return JSON.parse(fs.readFileSync(resolvedPath, "utf-8"));
-    } else {
-      return fs.readFileSync(resolvedPath, "utf-8");
+
+    if (!globalObj) {
+      globalObj = parentObj;
     }
+
+    if (parentName) {
+      parentPath = parentPath ? `${parentPath}.${parentName}` : parentName;
+    }
+    let result = null;
+
+    switch (ext) {
+      case "yaml":
+      case "yml":
+        if (encoding === "helm") {
+          result = readHelmTemplateSync(fs.readFileSync(resolvedPath), {
+            global: globalObj,
+            parentPath
+          });
+        } else {
+          result = readYamlSync(resolvedPath, {
+            global: globalObj,
+            parentPath
+          });
+        }
+        break;
+      case "json":
+        result = JSON.parse(fs.readFileSync(resolvedPath, "utf-8"));
+        break;
+      default:
+        result = fs.readFileSync(resolvedPath, "utf-8");
+        break;
+    }
+
+    return result;
   },
   git: ([name]: string[]) => {
     let cmds;
@@ -91,8 +118,11 @@ export const functions: FunctionMap = {
 };
 
 export enum NodeKind {
+  KEY,
   VALUE,
   VALUE_FRAGMENT,
+  NAME,
+  ARG,
   GROUP,
   PAIR,
   ARRAY,
@@ -112,7 +142,6 @@ export class Node {
   parent: Node | null = null;
 
   nextSibling: Node | null = null;
-  // prevSibling: Node | null = null;
   firstChild: Node | null = null;
   lastChild: Node | null = null;
 
@@ -122,21 +151,11 @@ export class Node {
     if (scope) this.scope = scope;
   }
 
-  setScope(start: number, end: number = -1): void {
-    if (this.scope) {
-      this.scope.start = start;
-      this.scope.end = end;
-    }
-  }
   setScopeEnd(end: number): void {
     if (this.scope) {
       this.scope.end = end;
     }
   }
-}
-
-export class Result {
-  constructor(public value: string, public scope?: Scope) {}
 }
 
 export enum TokenKind {
@@ -188,6 +207,20 @@ function createNode(
     parent.lastChild = node;
   }
   return node;
+}
+
+function lastTemplate(node: Node | null) {
+  if (node && node.parent) {
+    if (
+      node.parent.kind === NodeKind.FUNCTION ||
+      node.parent.kind === NodeKind.VARIABLE
+    ) {
+      return node.parent.parent;
+    }
+    return node.parent;
+  }
+  /* istanbul ignore next */
+  return null;
 }
 
 /**
@@ -251,7 +284,7 @@ export function parseToken(value: any, parent: Node | null = null) {
 
           childNode.firstChild = createNode(
             childNode,
-            NodeKind.VALUE,
+            NodeKind.NAME,
             new Scope(i),
             name
           );
@@ -278,14 +311,13 @@ export function parseToken(value: any, parent: Node | null = null) {
             }
             buffer.split(",").map(v => {
               v = v.trim();
-              createNode(childNode, NodeKind.VALUE, new Scope(i), v);
+              createNode(childNode, NodeKind.ARG, new Scope(i), v);
               return v;
             });
           }
 
           buffer = "";
-          lastParent =
-            lastParent && lastParent.parent && lastParent.parent.parent;
+          lastParent = lastTemplate(lastParent);
         }
       }
     }
@@ -315,7 +347,9 @@ export function parseToken(value: any, parent: Node | null = null) {
 type EmitNodeArg = {
   node: Node | null;
   basePath?: string;
-  parentName?: string;
+  parentObj?: any;
+  parentName?: string | null;
+  parentPath?: string | null;
   globalObj?: any;
   selfObj?: any;
   thisObj?: any;
@@ -329,72 +363,98 @@ type EmitNodeArg = {
 export function emitNode({
   node,
   basePath = ".",
-  parentName = "",
+  parentPath = "",
+  parentName = null,
   globalObj = null,
   selfObj = null,
-  thisObj = {},
+  parentObj = null,
+  thisObj = null,
   context = {}
 }: EmitNodeArg): any {
-  if (!selfObj) {
-    selfObj = {};
-  }
-  if (!globalObj) {
-    globalObj = selfObj;
-  } else if (parentName) {
-    globalObj[parentName] = selfObj;
-  }
-  // console.log(printNodes(node));
-
-  const options = {
+  let options = {
     basePath,
     parentName,
+    parentPath,
+    parentObj,
     globalObj,
     selfObj,
     thisObj,
     context
   };
+  /* istanbul ignore next */
   if (!node) {
-    /* istanbul ignore next */
     return null;
   }
+
   switch (node.kind) {
     case NodeKind.OBJECT:
     case NodeKind.ARRAY: {
       let thisObj = node.kind === NodeKind.ARRAY ? [] : {};
+
+      if (parentName) {
+        parentPath = parentPath ? `${parentPath}.${parentName}` : parentName;
+      }
+      if (parentObj && parentName) {
+        parentObj[parentName] = thisObj;
+      } else {
+        parentObj = thisObj;
+      }
+
+      if (!selfObj) {
+        selfObj = parentObj;
+      }
+
+      if (!globalObj) {
+        globalObj = selfObj;
+      } else {
+        set(globalObj, parentPath, thisObj);
+      }
+
       let child = node.firstChild;
       while (child) {
-        const keyValue = emitNode({
+        emitNode({
           node: child,
           ...options,
+          parentPath,
+          globalObj,
+          selfObj,
+          parentObj,
           thisObj
         });
-        const targetObject = parentName ? selfObj[parentName] : selfObj;
-        if (!targetObject) {
-          selfObj[parentName] = keyValue;
-        } else {
-          Object.keys(keyValue).forEach(key => {
-            const value = keyValue[key];
-            targetObject[key] = value;
-          });
-        }
         child = child.nextSibling;
       }
+      // if (parentName === null)
+      //   console.log(
+      //     `----- parentName:${parentName}\n`,
+      //     util.inspect(
+      //       {
+      //         selfObj,
+      //         parentObj,
+      //         thisObj
+      //       },
+      //       { depth: null }
+      //     )
+      //   );
       return thisObj;
     }
+    /**
+     * Key value pair
+     */
     case NodeKind.PAIR: {
       let keyNode = node.firstChild;
+      /* istanbul ignore next */
       if (keyNode) {
         let valueNode = keyNode.nextSibling;
         const key = emitNode({
           node: keyNode,
           ...options
         });
-        const value = emitNode({
+        emitNode({
           node: valueNode,
           ...options,
-          parentName: key
+          parentName: key,
+          parentObj: thisObj
         });
-        thisObj[key] = value;
       }
       return thisObj;
     }
@@ -402,39 +462,46 @@ export function emitNode({
       let child = node.firstChild;
       let finalValue = "";
       while (child) {
-        const result = emitNode({
+        const value = emitNode({
           node: child,
           ...options
         });
 
-        if (result) {
-          const value = result.value;
-          if (
-            finalValue === "" ||
-            (typeof value === "object" && value !== null)
-          ) {
-            finalValue = value;
-          } else {
-            finalValue += value;
-          }
+        if (
+          finalValue === "" ||
+          (typeof value === "object" && value !== null)
+        ) {
+          finalValue = value;
         } else {
-          /* istanbul ignore next */
-          finalValue = result;
+          finalValue += value;
         }
         child = child.nextSibling;
       }
+
+      if (parentObj && parentName) {
+        parentObj[parentName] = finalValue;
+      }
       return finalValue;
     }
-    case NodeKind.VALUE: {
+    case NodeKind.KEY:
+    case NodeKind.NAME:
+    case NodeKind.ARG:
+    case NodeKind.VALUE_FRAGMENT:
       return node.value;
+
+    case NodeKind.VALUE: {
+      const value = node.value;
+      if (parentObj && parentName) {
+        parentObj[parentName] = value;
+      }
+      return value;
     }
     case NodeKind.TEMPLATE: {
       const child: Node = <Node>node.firstChild;
-      const result = emitNode({
+      return emitNode({
         node: child,
         ...options
       });
-      return new Result(result.value, node.scope);
     }
     case NodeKind.FUNCTION:
     case NodeKind.VARIABLE: {
@@ -447,14 +514,14 @@ export function emitNode({
       const _arguments = [];
 
       while (child) {
-        if (child.kind === NodeKind.VALUE) {
+        if (child.kind === NodeKind.ARG) {
           _arguments.push(child.value);
         } else {
           const result = emitNode({
             node: child,
             ...options
           });
-          _arguments.push(result.value);
+          _arguments.push(result);
         }
         child = child.nextSibling;
       }
@@ -463,25 +530,15 @@ export function emitNode({
       func = func || functions[functionName];
 
       if (func) {
-        const __arguments = _arguments.map((arg: any) => {
-          if (arg instanceof Node) {
-            const result = emitNode({
-              node: arg,
-              ...options
-            });
-            return result.value;
-          } else {
-            return arg;
-          }
-        });
-        const result = func(__arguments, {
+        const result = func(_arguments, {
           ...options
         });
-        return new Result(result, node.scope);
+        return result;
       }
       throw new Error(YamlError.UnknonwReference(functionName));
     }
   }
+  /* istanbul ignore next */
   return node;
 }
 
@@ -500,7 +557,7 @@ export function parse({ content, parent = null }: ParseArg): any {
     const keys = Object.keys(content);
     keys.forEach(key => {
       const itemNode = createNode(lastParent, NodeKind.PAIR);
-      createNode(itemNode, NodeKind.VALUE, new Scope(0), key);
+      createNode(itemNode, NodeKind.KEY, new Scope(0), key);
       parse({
         content: content[key],
         parent: itemNode

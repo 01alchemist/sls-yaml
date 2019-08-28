@@ -1,6 +1,6 @@
 export type ParentObject = {
-  name: string;
   global: any;
+  parentPath: string;
 };
 
 export type Path = string;

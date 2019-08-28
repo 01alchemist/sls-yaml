@@ -38,6 +38,7 @@
   "dependencies": {
     "js-yaml": "3.13.1",
     "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {

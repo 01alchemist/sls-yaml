@@ -4,7 +4,7 @@ import { printNodes } from "./utils";
 
 describe("Template compiler test suite", () => {
   describe("When passing a helm template path to file function", () => {
-    it("Should load from disk", () => {
+    it("Should load from disk and compiler templates and passthrough helm templates", () => {
       const data = functions.file(["./__mocks__/helm-template.yml", "helm"], {
         basePath: path.resolve(__dirname, "../")
       });
@@ -14,6 +14,14 @@ describe("Template compiler test suite", () => {
           ""
         ].join("\n")
       );
+    });
+  });
+  describe("When passing a yaml template path to file function", () => {
+    it("Should load yaml file from disk and compile template", () => {
+      const data = functions.file(["./__mocks__/file.yml"], {
+        basePath: path.resolve(__dirname, "../")
+      });
+      expect(data).toEqual({ key: "value" });
     });
   });
 });
@@ -41,8 +49,8 @@ describe("Template compiler parser test suite", () => {
   [node:VALUE_FRAGMENT]=ServiceName@
   [node:TEMPLATE]
     [node:VARIABLE]
-      [node:VALUE]=self
-      [node:VALUE]=version\n`);
+      [node:NAME]=self
+      [node:ARG]=version\n`);
     });
   });
 
@@ -57,9 +65,9 @@ describe("Template compiler parser test suite", () => {
   [node:VALUE_FRAGMENT]=ServiceName@
   [node:TEMPLATE]
     [node:FUNCTION]
-      [node:VALUE]=func
-      [node:VALUE]=arg1
-      [node:VALUE]=arg2\n`);
+      [node:NAME]=func
+      [node:ARG]=arg1
+      [node:ARG]=arg2\n`);
     });
   });
 
@@ -74,14 +82,14 @@ describe("Template compiler parser test suite", () => {
   [node:VALUE_FRAGMENT]=ServiceName@
   [node:TEMPLATE]
     [node:FUNCTION]
-      [node:VALUE]=replace
+      [node:NAME]=replace
       [node:TEMPLATE]
         [node:VARIABLE]
-          [node:VALUE]=self
-          [node:VALUE]=version
-          [node:VALUE]=v0.0.0
-      [node:VALUE]=.
-      [node:VALUE]=-\n`);
+          [node:NAME]=self
+          [node:ARG]=version
+          [node:ARG]=v0.0.0
+      [node:ARG]=.
+      [node:ARG]=-\n`);
     });
   });
 
@@ -93,7 +101,7 @@ describe("Template compiler parser test suite", () => {
       });
       expect(printNodes(rootNode)).toBe(`[node:OBJECT]
   [node:PAIR]
-    [node:VALUE]=name
+    [node:KEY]=name
     [node:GROUP]
       [node:VALUE_FRAGMENT]=Service Name\n`);
     });
@@ -107,14 +115,14 @@ describe("Template compiler parser test suite", () => {
       const result = printNodes(rootNode);
       expect(result).toBe(`[node:OBJECT]
   [node:PAIR]
-    [node:VALUE]=hosts
+    [node:KEY]=hosts
     [node:ARRAY]
       [node:PAIR]
-        [node:VALUE]=0
+        [node:KEY]=0
         [node:GROUP]
           [node:VALUE_FRAGMENT]=0.0.0.0
       [node:PAIR]
-        [node:VALUE]=1
+        [node:KEY]=1
         [node:GROUP]
           [node:VALUE_FRAGMENT]=127.0.0.1\n`);
     });

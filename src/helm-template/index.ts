@@ -1,9 +1,7 @@
 import { compile } from "../sls-yaml-compiler";
-import { ParentObject } from '~/types';
+import { ParentObject, Path } from "~/types";
 const fs = require("fs");
 const yaml = require("js-yaml");
-
-type Path = string;
 
 function encodeHelmTemplates(data: string) {
   const lines = data.split("\n");
@@ -101,22 +99,19 @@ export function readHelmTemplateSync(
   data = encodeHelmTemplates(data);
 
   const doc = yaml.safeLoad(data);
-
-  let globalObj: any = {};
-  let selfObj: any = {};
-  let parentName = "";
+  let globalObj: any = null;
+  let parentPath: any = null;
   if (parent) {
-    parentName = parent.name;
     globalObj = parent.global;
-    globalObj[parentName] = selfObj;
+    parentPath = parent.parentPath;
   }
-
   const compiledDoc = compile({
     doc,
     globalObj,
-    basePath,
-    parentName
+    parentPath,
+    basePath
   });
+
   const yamlData = yaml.safeDump(compiledDoc);
 
   const decodedYaml = decodeHelmTemplates(yamlData);

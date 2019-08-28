@@ -8,3 +8,10 @@ metadata:
   hosts:
     - domain
     - {{ .Values.host }}
+deepObj: 
+  level1: 
+    name: level1
+    level2: 
+      name: ${self:deepObj.level1.name}-level2
+      level3: 
+        name: ${self:deepObj.level1.level2.name}-level3
