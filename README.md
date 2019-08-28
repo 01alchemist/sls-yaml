@@ -11,7 +11,8 @@ npm install sls-yaml
 ```
 
 ```js
-const compiledYamlAsJsonObject = yaml(YAML_FILE_PATH_OR_BUFFER);
+import { readYamlSync } from "sls-yaml";
+const compiledYamlAsJsonObject = readYamlSync(YAML_FILE_PATH_OR_BUFFER);
 ```
 
 ### Supported sls extensions
