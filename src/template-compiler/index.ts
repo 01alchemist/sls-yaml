@@ -113,7 +113,7 @@ export const functions: FunctionMap = {
   },
   replace: ([source, _searchValue, replaceValue]: string[]) => {
     let searchValue: string | RegExp = _searchValue;
-    if (searchValue.startsWith("/")) {
+    if (searchValue && searchValue.startsWith("/")) {
       // Match regular expression pattern
       const result = _searchValue.match(/(?<=\/)(.*?)(\/)(\w*)/gi);
       if (result && result[0]) {
