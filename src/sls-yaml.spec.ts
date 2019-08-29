@@ -2,12 +2,12 @@ import yaml from "./sls-yaml";
 
 describe("yaml-loader test suite", () => {
   describe("YAML standard spec test suite", () => {
-    xit("Should return number value", () => {
+    it("Should return number value", () => {
       const content = Buffer.from(`version: 1`);
       const doc = yaml(content);
       expect(doc).toEqual({ version: 1 });
     });
-    xit("Should return string value", () => {
+    it("Should return string value", () => {
       const content = Buffer.from(`version: "1"`);
       const doc = yaml(content);
       expect(doc).toEqual({ version: "1" });
@@ -16,20 +16,20 @@ describe("yaml-loader test suite", () => {
 
   describe("YAML extended test suite", () => {
     describe("When passing yaml file path", () => {
-      xit("Should load yaml from path", () => {
+      it("Should load yaml from path", () => {
         const doc = yaml("src/__mocks__/file.yml");
         expect(doc).toEqual({ key: "value" });
       });
     });
     describe("When passing yaml file buffer", () => {
-      xit("Should load yaml from path", () => {
+      it("Should load yaml from path", () => {
         const doc = yaml("src/__mocks__/file.yml");
         expect(doc).toEqual({ key: "value" });
       });
     });
 
     describe("When passing a yaml file reference", () => {
-      xit("Should replace value with file content", () => {
+      it("Should replace value with file content", () => {
         const content = Buffer.from("config: ${file(src/__mocks__/file.yml)}");
         const doc = yaml(content);
         expect(doc).toEqual({ config: { key: "value" } });
@@ -37,7 +37,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a yaml file reference without key", () => {
-      xit("Should replace value with file content", () => {
+      it("Should replace value with file content", () => {
         const content = Buffer.from("${file(src/__mocks__/file.yml)}");
         const doc = yaml(content);
         expect(doc).toEqual({ key: "value" });
@@ -45,7 +45,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a json file reference", () => {
-      xit("Should replace value with file's content", () => {
+      it("Should replace value with file's content", () => {
         const content = Buffer.from("json: ${file(src/__mocks__/file.json)}");
         const doc = yaml(content);
         expect(doc).toEqual({ json: { name: "Json", value: 100 } });
@@ -53,7 +53,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a text file reference", () => {
-      xit("Should replace value with file's content", () => {
+      it("Should replace value with file's content", () => {
         const content = Buffer.from("text: ${file(src/__mocks__/file.txt)}");
         const doc = yaml(content);
         expect(doc).toEqual({ text: "This is external text content\n" });
@@ -61,7 +61,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a env reference", () => {
-      xit("Should replace env var with it's value", () => {
+      it("Should replace env var with it's value", () => {
         const content = Buffer.from("config: ${env:NODE_ENV}");
         const doc = yaml(content);
         expect(doc).toEqual({ config: "test" });
@@ -69,7 +69,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a env reference", () => {
-      xit("Should replace env var with it's value", () => {
+      it("Should replace env var with it's value", () => {
         const content = Buffer.from("config: ${env:NODE_ENV}");
         const doc = yaml(content);
         expect(doc).toEqual({ config: "test" });
@@ -77,35 +77,35 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a undefined env reference", () => {
-      xit("Should replace env var with undefined object", () => {
+      it("Should replace env var with undefined object", () => {
         const content = Buffer.from("config: ${env:IAM_NOT_EXIST}");
         const doc = yaml(content);
         expect(doc).toEqual({ config: undefined });
       });
     });
     describe("When passing a env reference with prefix", () => {
-      xit("Should return prefix plus replace env var with it's value", () => {
+      it("Should return prefix plus replace env var with it's value", () => {
         const content = Buffer.from("config: prefix-${env:NODE_ENV}");
         const doc = yaml(content);
         expect(doc).toEqual({ config: "prefix-test" });
       });
     });
     describe("When passing a env reference with suffix", () => {
-      xit("Should return suffix plus replace env var with it's value", () => {
+      it("Should return suffix plus replace env var with it's value", () => {
         const content = Buffer.from("config: ${env:NODE_ENV}-suffix");
         const doc = yaml(content);
         expect(doc).toEqual({ config: "test-suffix" });
       });
     });
     describe("When passing a env reference with prefix and suffix", () => {
-      xit("Should return prefix and suffix plus replace env var with it's value", () => {
+      it("Should return prefix and suffix plus replace env var with it's value", () => {
         const content = Buffer.from("config: prefix-${env:NODE_ENV}-suffix");
         const doc = yaml(content);
         expect(doc).toEqual({ config: "prefix-test-suffix" });
       });
     });
     describe("When passing a self reference", () => {
-      xit("Should replace self var with it's value", () => {
+      it("Should replace self var with it's value", () => {
         const content = Buffer.from(
           ["version: 1", "config: version-${self:version}"].join("\n")
         );
@@ -114,14 +114,14 @@ describe("yaml-loader test suite", () => {
       });
     });
     describe("When passing a self reference with null value", () => {
-      xit("Should return prefix plus replace self var with null", () => {
+      it("Should return prefix plus replace self var with null", () => {
         const content = Buffer.from(
           ["version: null", "config: version-${self:version}"].join("\n")
         );
         const doc = yaml(content);
         expect(doc).toEqual({ version: null, config: "version-null" });
       });
-      xit("Should replace self var with null", () => {
+      it("Should replace self var with null", () => {
         const content = Buffer.from(
           ["version: null", "config: ${self:version}"].join("\n")
         );
@@ -130,7 +130,7 @@ describe("yaml-loader test suite", () => {
       });
     });
     describe("When passing a file reference with env references", () => {
-      xit("Should replace value with file content", () => {
+      it("Should replace value with file content", () => {
         const content = Buffer.from(
           "config: ${file(src/__mocks__/file-env.yml)}"
         );
@@ -139,7 +139,7 @@ describe("yaml-loader test suite", () => {
       });
     });
     describe("When passing a file reference with self references", () => {
-      xit("Should replace value with file content", () => {
+      it("Should replace value with file content", () => {
         const content = Buffer.from(
           "config: ${file(src/__mocks__/file-self.yml)}"
         );
@@ -151,7 +151,7 @@ describe("yaml-loader test suite", () => {
       });
     });
     describe("When passing a file reference with self references within a file reference", () => {
-      xit("Should correctly replace values from global object", () => {
+      it("Should correctly replace values from global object", () => {
         const content = Buffer.from(
           "config: ${file(src/__mocks__/file-file-self.yml)}"
         );
@@ -164,7 +164,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a file reference with dynamic self references within a file reference", () => {
-      xit("Should replace value with file content", () => {
+      it("Should replace value with file content", () => {
         const content = Buffer.from(
           "config: ${file(src/__mocks__/file-file-self-dynamic.yml)}"
         );
@@ -177,7 +177,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing boolean values", () => {
-      xit("Should cast boolean:true values properly", () => {
+      it("Should cast boolean:true values properly", () => {
         const content = Buffer.from(
           [
             "is-enabled: true",
@@ -194,7 +194,7 @@ describe("yaml-loader test suite", () => {
         expect(doc).toEqual(expected);
       });
 
-      xit("Should cast boolean:false values properly", () => {
+      it("Should cast boolean:false values properly", () => {
         const content = Buffer.from(
           [
             "is-enabled: false",
@@ -213,7 +213,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing multi level object", () => {
-      xit("Should build object correctly", () => {
+      it("Should build object correctly", () => {
         const content = Buffer.from(
           [
             "name: MyName",
@@ -237,7 +237,7 @@ describe("yaml-loader test suite", () => {
         const doc = yaml(content);
         expect(doc).toEqual(expected);
       });
-      xit("Should build selfObj, globalObj and parentObj correctly", () => {
+      it("Should build selfObj, globalObj and parentObj correctly", () => {
         const content = Buffer.from(["name: MyName"].join("\n"));
         const expected = {
           name: "MyName"
@@ -245,7 +245,7 @@ describe("yaml-loader test suite", () => {
         const doc = yaml(content);
         expect(doc).toEqual(expected);
       });
-      xit("Should build selfObj, globalObj and parentObj correctly", () => {
+      it("Should build selfObj, globalObj and parentObj correctly", () => {
         const content = Buffer.from(
           [
             "name: MyName",
@@ -271,7 +271,7 @@ describe("yaml-loader test suite", () => {
         const doc = yaml(content);
         expect(doc).toEqual(expected);
       });
-      xit("Should build selfObj, globalObj and parentObj correctly", () => {
+      it("Should build selfObj, globalObj and parentObj correctly", () => {
         const content = Buffer.from(
           [
             "name: MyName",
@@ -303,7 +303,7 @@ describe("yaml-loader test suite", () => {
 
   describe("YAML extended exception test suite", () => {
     describe("When passing an unknown function reference", () => {
-      xit("Should throw unknonw reference error", () => {
+      it("Should throw unknonw reference error", () => {
         const content = Buffer.from(
           "config: ${unknown(src/__mocks__/file.yml)}"
         );
@@ -317,7 +317,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing integer values", () => {
-      xit("Should cast integer values properly", () => {
+      it("Should cast integer values properly", () => {
         const content = Buffer.from(
           [
             "replicas: 3",
@@ -336,7 +336,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing an unknown variable reference", () => {
-      xit("Should throw unknonw reference error", () => {
+      it("Should throw unknonw reference error", () => {
         const content = Buffer.from("config: ${unknown:my.var}");
 
         expect(() => {
@@ -348,7 +348,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing an list with file reference", () => {
-      xit("Should return concatenated list", () => {
+      it("Should return concatenated list", () => {
         const content = Buffer.from(
           [
             "list:",
@@ -365,7 +365,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing an list with variable reference", () => {
-      xit("Should return concatenated list", () => {
+      it("Should return concatenated list", () => {
         const content = Buffer.from(
           [
             "name: variable-list",
@@ -388,7 +388,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a list of object with variable reference", () => {
-      xit("Should return concatenated list", () => {
+      it("Should return concatenated list", () => {
         const content = Buffer.from(
           [
             "name: variable-list",
@@ -417,7 +417,7 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing a list of object with file reference", () => {
-      xit("Should return concatenated list", () => {
+      it("Should return concatenated list", () => {
         const content = Buffer.from(
           [
             "name: variable-list",
@@ -441,7 +441,7 @@ describe("yaml-loader test suite", () => {
       });
     });
     // describe("When passing a git:branch command", () => {
-    //   xit("Should return result of command", () => {
+    //   it("Should return result of command", () => {
     //     const content = Buffer.from("branch: ${git:branch}");
     //     const result = yaml(content);
     //     expect(result).toEqual({ branch: "master" });
@@ -449,7 +449,7 @@ describe("yaml-loader test suite", () => {
     // });
 
     describe("When passing a git:sha1 command", () => {
-      xit("Should return result of command", () => {
+      it("Should return result of command", () => {
         const content = Buffer.from("sha1: ${git:sha1}");
         const result = yaml(content);
         expect(result.sha1).toBeDefined();
@@ -459,7 +459,7 @@ describe("yaml-loader test suite", () => {
 
   describe("Multi template syntax test suite", () => {
     describe("When passing a multiple template syntax", () => {
-      xit("Should evaluate all templates", () => {
+      it("Should evaluate all templates", () => {
         const content = Buffer.from(
           [
             "name: service-name",
@@ -480,12 +480,12 @@ describe("yaml-loader test suite", () => {
 
   describe("Helm template syntax test suite", () => {
     describe("When passing a helm template syntax", () => {
-      xit("Should pass-through those syntax", () => {
+      it("Should pass-through those syntax", () => {
         const content = Buffer.from("replicas: ${helm:'.Values.replicas'}");
         const result = yaml(content);
         expect(result.replicas).toBe("'{{ .Values.replicas }}'");
       });
-      xit("Should pass-through utf-8 encoding", () => {
+      it("Should pass-through utf-8 encoding", () => {
         const content = Buffer.from(
           "template: ${file(./src/__mocks__/helm-template.yml, utf-8)}"
         );
@@ -494,7 +494,7 @@ describe("yaml-loader test suite", () => {
           "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n"
         );
       });
-      xit("Should pass-through multiple syntax", () => {
+      it("Should pass-through multiple syntax", () => {
         const content = Buffer.from(
           "template: ${file(./src/__mocks__/helm-template.yml, helm)}"
         );
@@ -536,7 +536,7 @@ describe("yaml-loader test suite", () => {
 
   describe("Replace test suite", () => {
     describe("When passing a string and replace pattern", () => {
-      xit("Should replace string", () => {
+      it("Should replace string", () => {
         const content = Buffer.from(
           [
             "name: service",
@@ -552,7 +552,7 @@ describe("yaml-loader test suite", () => {
 
   describe("Custom extension test suite", () => {
     describe("When passing a constum context", () => {
-      xit("Should use custom functions", () => {
+      it("Should use custom functions", () => {
         const content = Buffer.from(
           [
             "name: service",

@@ -15,6 +15,16 @@ describe("Helm template test suite", () => {
       );
     });
   });
+  describe("When passing a wrong helm template", () => {
+    it("Should load from disk", () => {
+      const buffer = Buffer.from("@:image");
+      expect(() => {
+        readHelmTemplateSync(buffer);
+      }).toThrowError(
+        "end of the stream or a document separator is expected at line 1, column 1"
+      );
+    });
+  });
   describe("When passing a helm template as Buffer", () => {
     it("Should load from Buffer", () => {
       const buffer = Buffer.from(

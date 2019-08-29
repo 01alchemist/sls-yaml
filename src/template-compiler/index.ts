@@ -309,9 +309,9 @@ export function parseToken(value: any, parent: Node | null = null) {
             const end =
               buffer.length - (childNode.kind === NodeKind.FUNCTION ? 2 : 1);
             buffer = buffer.substring(0, end);
-            if (childNode.parent) {
-              childNode.parent.setScopeEnd(i);
-            }
+            // if (childNode.parent) {
+            //   childNode.parent.setScopeEnd(i);
+            // }
             childNode.setScopeEnd(i);
             if (buffer[0] === ",") {
               buffer = buffer.substring(1);

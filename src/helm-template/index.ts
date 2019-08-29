@@ -1,10 +1,9 @@
 import { compile } from "../sls-yaml-compiler";
 import { ParentObject, Path } from "~/types";
 const fs = require("fs");
-const util = require("util");
 const yaml = require("js-yaml");
 
-function encodeHelmTemplates(data: string) {
+export function encodeHelmTemplates(data: string) {
   const lines = data.split("\n");
   return lines
     .map(line => {
@@ -43,7 +42,8 @@ function encodeHelmTemplates(data: string) {
     .join("\n");
 }
 
-function decodeHelmTemplates(data: string) {
+export function decodeHelmTemplates(data: string) {
+  /* istanbul ignore next */
   if (!data) {
     return data;
   }
@@ -118,9 +118,7 @@ export function readHelmTemplateSync(
   }
   data = encodeHelmTemplates(data);
 
-  // console.log("data:", data);
   const doc = yaml.safeLoad(data);
-  // console.log("doc:", doc);
 
   let globalObj: any = null;
   let parentPath: any = null;
@@ -134,14 +132,7 @@ export function readHelmTemplateSync(
     parentPath,
     basePath
   });
-  let yamlData;
-  try {
-    yamlData = yaml.safeDump(compiledDoc);
-  } catch (e) {
-    console.log(e);
-    console.log(util.inspect(compiledDoc, { depth: null }));
-  }
-
+  const yamlData = yaml.safeDump(compiledDoc);
   const decodedYaml = decodeHelmTemplates(yamlData);
   return decodedYaml;
 }
