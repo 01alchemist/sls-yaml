@@ -50,29 +50,36 @@ describe("Helm template test suite", () => {
           `      mountPath: /etc/localtime`
         ].join("\n")
       );
-      const data = readHelmTemplateSync(buffer);
-      expect(data).toBe(
-        [
-          `containers:`,
-          `- name: {{ .Values.name }}`,
-          `  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"`,
-          `  imagePullPolicy: "{ { .Values.image.pullPolicy } }"`,
-          `  readinessProbe:`,
-          `    httpGet:`,
-          `      path: /health`,
-          `      port: { { .Values.targetPort } }`,
-          `    initialDelaySeconds: 15`,
-          `    periodSeconds: 30`,
-          `  env:`,
-          `    - name: "NODE_ENV"`,
-          `      value: "{{ .Values.env }}"`,
-          `  ports:`,
-          `    - containerPort: { { .Values.containerPort } }`,
-          `  volumeMounts:`,
-          `    - name: tz-config`,
-          `      mountPath: /etc/localtime`
-        ].join("\n")
-      );
+      const expected = [
+        `containers: `,
+        `  - name: {{ .Values.name }}`,
+        `    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"`,
+        `    imagePullPolicy: "{{ .Values.image.pullPolicy }}"`,
+        `    readinessProbe: `,
+        `      httpGet: `,
+        `        path: /health`,
+        `        port: {{ .Values.targetPort }}`,
+        `      initialDelaySeconds: 15`,
+        `      periodSeconds: 30`,
+        `    env: `,
+        `      - name: NODE_ENV`,
+        `        value: "{{ .Values.env }}"`,
+        `    ports: `,
+        `      - containerPort: {{ .Values.containerPort }}`,
+        `    volumeMounts: `,
+        `      - name: tz-config`,
+        `        mountPath: /etc/localtime`,
+        ``
+      ]
+        .map(str => str.replace(/\s/gi, "༌"))
+        .join("\n");
+
+      const data = readHelmTemplateSync(buffer)
+        .split("\n")
+        .map(str => str.replace(/\s/gi, "༌"))
+        .join("\n");
+
+      expect(data).toBe(expected);
     });
   });
 });
