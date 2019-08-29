@@ -54,6 +54,7 @@ export const functions: FunctionMap = {
     let result = null;
 
     switch (ext) {
+      /* istanbul ignore next */
       case "yaml":
       case "yml":
         if (encoding === "helm") {
@@ -108,15 +109,15 @@ export const functions: FunctionMap = {
     if ((c0 === `"` && cl === `"`) || (c0 === `'` && cl === `'`)) {
       return `'{{ ${template.substring(1, template.length - 1)} }}'`;
     }
-    /* istanbul ignore next */
     return `{{ ${template} }}`;
   },
   replace: ([source, _searchValue, replaceValue]: string[]) => {
     let searchValue: string | RegExp = _searchValue;
     if (searchValue.startsWith("/")) {
-      const result = _searchValue.match(/(?<=\/)(.*?)(?=\/)|(?<=\/)(\w*)/gi);
-      if (result) {
-        const [pattern, flags]: string[] = result;
+      // Match regular expression pattern
+      const result = _searchValue.match(/(?<=\/)(.*?)(\/)(\w*)/gi);
+      if (result && result[0]) {
+        const [pattern, flags]: string[] = result[0].split("/");
         searchValue = new RegExp(pattern, flags);
       }
     }
@@ -139,10 +140,6 @@ export enum NodeKind {
   VARIABLE
 }
 
-export class Scope {
-  constructor(public start: number, public end: number = -1) {}
-}
-
 export class Node {
   value: any;
 
@@ -152,17 +149,7 @@ export class Node {
   firstChild: Node | null = null;
   lastChild: Node | null = null;
 
-  scope?: Scope;
-
-  constructor(public kind: NodeKind, scope?: Scope) {
-    if (scope) this.scope = scope;
-  }
-
-  setScopeEnd(end: number): void {
-    if (this.scope) {
-      this.scope.end = end;
-    }
-  }
+  constructor(public kind: NodeKind) {}
 }
 
 export enum TokenKind {
@@ -197,13 +184,8 @@ export const tokens: any = {
 
 export const tokenValues = Object.keys(tokens);
 
-function createNode(
-  parent: Node | null,
-  kind: NodeKind,
-  scope?: Scope,
-  value?: any
-) {
-  const node = new Node(kind, scope);
+function createNode(parent: Node | null, kind: NodeKind, value?: any) {
+  const node = new Node(kind);
   if (value !== undefined) node.value = value;
   if (parent) {
     node.parent = parent;
@@ -217,7 +199,9 @@ function createNode(
 }
 
 function lastTemplate(node: Node | null) {
+  /* istanbul ignore next */
   if (node && node.parent) {
+    /* istanbul ignore next */
     if (
       node.parent.kind === NodeKind.FUNCTION ||
       node.parent.kind === NodeKind.VARIABLE
@@ -234,14 +218,9 @@ function lastTemplate(node: Node | null) {
  * Parse template tokens and create node tree
  * @param {string} value
  */
-export function parseToken(value: any, parent: Node | null = null) {
+export function parseToken(value: any, parent: Node) {
   let buffer: string = "";
-  const parentNode = createNode(
-    parent,
-    NodeKind.GROUP,
-    new Scope(0, value.length)
-    // value
-  );
+  const parentNode = createNode(parent, NodeKind.GROUP);
 
   let lastParent: Node | null = parentNode;
   let nodeStack: Node[] = [];
@@ -249,7 +228,7 @@ export function parseToken(value: any, parent: Node | null = null) {
   /**
    * Tokenize
    */
-  charStream.forEach((char: string, i: number) => {
+  charStream.forEach((char: string) => {
     buffer += char;
     /**
      * Match single char tokens
@@ -260,12 +239,9 @@ export function parseToken(value: any, parent: Node | null = null) {
        */
       if (tokens[char] === TokenKind.DOLLAR) {
         if (buffer.length > 1) {
-          const start = i - buffer.length - 1;
-          const end = i - 1;
           createNode(
             lastParent,
             NodeKind.VALUE_FRAGMENT,
-            new Scope(start, end),
             buffer.substring(0, buffer.length - 1)
           );
         }
@@ -285,16 +261,10 @@ export function parseToken(value: any, parent: Node | null = null) {
           const name = buffer.substring(0, buffer.length - 1).trim();
           const childNode = createNode(
             lastParent,
-            isVariable ? NodeKind.VARIABLE : NodeKind.FUNCTION,
-            new Scope(i)
+            isVariable ? NodeKind.VARIABLE : NodeKind.FUNCTION
           );
 
-          childNode.firstChild = createNode(
-            childNode,
-            NodeKind.NAME,
-            new Scope(i),
-            name
-          );
+          childNode.firstChild = createNode(childNode, NodeKind.NAME, name);
 
           nodeStack.push(childNode);
           buffer = "";
@@ -309,16 +279,12 @@ export function parseToken(value: any, parent: Node | null = null) {
             const end =
               buffer.length - (childNode.kind === NodeKind.FUNCTION ? 2 : 1);
             buffer = buffer.substring(0, end);
-            // if (childNode.parent) {
-            //   childNode.parent.setScopeEnd(i);
-            // }
-            childNode.setScopeEnd(i);
             if (buffer[0] === ",") {
               buffer = buffer.substring(1);
             }
             buffer.split(",").map(v => {
               v = v.trim();
-              createNode(childNode, NodeKind.ARG, new Scope(i), v);
+              createNode(childNode, NodeKind.ARG, v);
               return v;
             });
           }
@@ -333,19 +299,12 @@ export function parseToken(value: any, parent: Node | null = null) {
       if (lastParent && lastParent.kind === NodeKind.TEMPLATE) {
         lastParent = lastParent.firstChild;
       }
-      lastParent = createNode(lastParent, NodeKind.TEMPLATE, new Scope(i));
+      lastParent = createNode(lastParent, NodeKind.TEMPLATE);
       buffer = "";
     }
   });
   if (buffer.length > 0) {
-    const start = charStream.length - buffer.length;
-    const end = charStream.length;
-    createNode(
-      parentNode,
-      NodeKind.VALUE_FRAGMENT,
-      new Scope(start, end),
-      buffer
-    );
+    createNode(parentNode, NodeKind.VALUE_FRAGMENT, buffer);
   }
 
   return parentNode;
@@ -430,18 +389,6 @@ export function emitNode({
         });
         child = child.nextSibling;
       }
-      // if (parentName === null)
-      //   console.log(
-      //     `----- parentName:${parentName}\n`,
-      //     util.inspect(
-      //       {
-      //         selfObj,
-      //         parentObj,
-      //         thisObj
-      //       },
-      //       { depth: null }
-      //     )
-      //   );
       return thisObj;
     }
     /**
@@ -498,6 +445,7 @@ export function emitNode({
 
     case NodeKind.VALUE: {
       const value = node.value;
+      /* istanbul ignore next */
       if (parentObj && parentName) {
         parentObj[parentName] = value;
       }
@@ -514,6 +462,7 @@ export function emitNode({
     case NodeKind.VARIABLE: {
       let child = node.firstChild;
       let functionName = "unknown";
+      /* istanbul ignore next */
       if (child) {
         functionName = child.value;
         child = child.nextSibling;
@@ -557,14 +506,14 @@ type ParseArg = {
 export function parse({ content, parent = null }: ParseArg): any {
   if (typeof content === "object") {
     if (!content) {
-      return createNode(parent, NodeKind.VALUE, new Scope(0), content);
+      return createNode(parent, NodeKind.VALUE, content);
     }
     const kind = Array.isArray(content) ? NodeKind.ARRAY : NodeKind.OBJECT;
-    const lastParent = createNode(parent, kind, new Scope(0));
+    const lastParent = createNode(parent, kind);
     const keys = Object.keys(content);
     keys.forEach(key => {
       const itemNode = createNode(lastParent, NodeKind.PAIR);
-      createNode(itemNode, NodeKind.KEY, new Scope(0), key);
+      createNode(itemNode, NodeKind.KEY, key);
       parse({
         content: content[key],
         parent: itemNode
@@ -575,6 +524,6 @@ export function parse({ content, parent = null }: ParseArg): any {
   if (typeof content === "string") {
     return parseToken(content, parent);
   } else {
-    return createNode(parent, NodeKind.VALUE, new Scope(0), content);
+    return createNode(parent, NodeKind.VALUE, content);
   }
 }

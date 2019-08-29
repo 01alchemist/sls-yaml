@@ -24,23 +24,15 @@ describe("Template compiler test suite", () => {
       expect(data).toEqual({ key: "value" });
     });
   });
+  describe("When passing an empty template", () => {
+    it("Should return null", () => {
+      const data = functions.file(["./__mocks__/empty-template.yml"], {
+        basePath: path.resolve(__dirname, "../")
+      });
+      expect(data).toEqual({ key: null });
+    });
+  });
 });
-
-// describe("Template function test suite", () => {
-//   describe("When passing a helm template path to file function", () => {
-//     it("Should load from disk and compiler templates and passthrough helm templates", () => {
-//       const data = functions.file(["./__mocks__/helm-template.yml", "helm"], {
-//         basePath: path.resolve(__dirname, "../")
-//       });
-//       expect(data).toBe(
-//         [
-//           "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}",
-//           ""
-//         ].join("\n")
-//       );
-//     });
-//   });
-// });
 
 describe("Template compiler parser test suite", () => {
   describe("When passing a string", () => {

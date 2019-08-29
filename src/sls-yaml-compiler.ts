@@ -1,4 +1,4 @@
-import { NodeKind, Node, emitNode, Scope, parse } from "./template-compiler";
+import { NodeKind, Node, emitNode, parse } from "./template-compiler";
 
 type CompileOptions = {
   doc: any;
@@ -15,7 +15,7 @@ export function compile({
   basePath,
   context
 }: CompileOptions) {
-  const parent = new Node(NodeKind.GROUP, new Scope(0));
+  const parent = new Node(NodeKind.GROUP);
   const node = parse({ content: doc, parent });
   const compiledJson = emitNode({
     node,

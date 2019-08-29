@@ -481,10 +481,21 @@ describe("yaml-loader test suite", () => {
   describe("Helm template syntax test suite", () => {
     describe("When passing a helm template syntax", () => {
       it("Should pass-through those syntax", () => {
-        const content = Buffer.from("replicas: ${helm:'.Values.replicas'}");
+        const content = Buffer.from(
+          [
+            "replicas: ${helm:'.Values.replicas'}",
+            'name: ${helm:".Values.name" }',
+            "port: ${helm:.Values.port}"
+          ].join("\n")
+        );
         const result = yaml(content);
-        expect(result.replicas).toBe("'{{ .Values.replicas }}'");
+        expect(result).toEqual({
+          name: "'{{ .Values.name }}'",
+          port: "{{ .Values.port }}",
+          replicas: "'{{ .Values.replicas }}'"
+        });
       });
+
       it("Should pass-through utf-8 encoding", () => {
         const content = Buffer.from(
           "template: ${file(./src/__mocks__/helm-template.yml, utf-8)}"
@@ -535,7 +546,7 @@ describe("yaml-loader test suite", () => {
   });
 
   describe("Replace test suite", () => {
-    describe("When passing a string and replace pattern", () => {
+    describe("When passing a string and regexp replace pattern", () => {
       it("Should replace string", () => {
         const content = Buffer.from(
           [
@@ -546,6 +557,41 @@ describe("yaml-loader test suite", () => {
         );
         const result = yaml(content);
         expect(result.subset).toBe("service@v1-0-2");
+      });
+      it("Should not replace if pattern does not match", () => {
+        const content = Buffer.from(
+          [
+            "name: service",
+            "version: v1-0-2",
+            "subset: service@${replace(${self:version},/\\./gi,-)}"
+          ].join("\n")
+        );
+        const result = yaml(content);
+        expect(result.subset).toBe("service@v1-0-2");
+      });
+      it("Should replace if pattern starts woth / and not a regexp", () => {
+        const content = Buffer.from(
+          [
+            "name: service",
+            "version: v1/0/2",
+            "subset: service@${replace(${self:version},/,-)}"
+          ].join("\n")
+        );
+        const result = yaml(content);
+        expect(result.subset).toBe("service@v1-0/2");
+      });
+    });
+    describe("When passing a string and string replace pattern", () => {
+      it("Should replace string", () => {
+        const content = Buffer.from(
+          [
+            "name: service",
+            "version: v1.0.2",
+            "subset: service@${replace(${self:version},v,release-)}"
+          ].join("\n")
+        );
+        const result = yaml(content);
+        expect(result.subset).toBe("service@release-1.0.2");
       });
     });
   });
