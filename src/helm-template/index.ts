@@ -103,7 +103,8 @@ export function decodeHelmTemplates(data: string) {
 
 export function readHelmTemplateSync(
   pathOrData: Path | Buffer,
-  parent?: ParentObject
+  parent?: ParentObject,
+  context?: any
 ) {
   let data,
     basePath = "./";
@@ -130,7 +131,8 @@ export function readHelmTemplateSync(
     doc,
     globalObj,
     parentPath,
-    basePath
+    basePath,
+    context
   });
   const yamlData = yaml.safeDump(compiledDoc);
   const decodedYaml = decodeHelmTemplates(yamlData);

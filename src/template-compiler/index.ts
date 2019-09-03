@@ -23,12 +23,13 @@ type FunctionParameters = {
   globalObj?: any;
   selfObj?: any;
   parentObj?: any;
+  context?: any;
 };
 
 export const functions: FunctionMap = {
   file: (
     [uri, encoding],
-    { basePath, parentName, globalObj, parentPath = "", parentObj }
+    { basePath, parentName, globalObj, parentPath = "", parentObj, context }
   ) => {
     const ext = uri.substring(uri.lastIndexOf(".") + 1, uri.length);
     const resolvedPath = path.resolve(basePath, uri);
@@ -58,15 +59,23 @@ export const functions: FunctionMap = {
       case "yaml":
       case "yml":
         if (encoding === "helm") {
-          result = readHelmTemplateSync(fs.readFileSync(resolvedPath), {
-            global: globalObj,
-            parentPath
-          });
+          result = readHelmTemplateSync(
+            fs.readFileSync(resolvedPath),
+            {
+              global: globalObj,
+              parentPath
+            },
+            context
+          );
         } else {
-          result = readYamlSync(resolvedPath, {
-            global: globalObj,
-            parentPath
-          });
+          result = readYamlSync(
+            resolvedPath,
+            {
+              global: globalObj,
+              parentPath
+            },
+            context
+          );
         }
         break;
       case "json":
@@ -97,11 +106,13 @@ export const functions: FunctionMap = {
   env: ([name]) => {
     return process.env[name];
   },
-  global: ([name]: string[], { globalObj }: any) => {
-    return get(globalObj, name);
+  global: ([name, defaultValue]: string[], { globalObj }: any) => {
+    const value = get(globalObj, name);
+    return value === undefined ? defaultValue : value;
   },
-  self: ([name]: string[], { selfObj }: any) => {
-    return get(selfObj, name);
+  self: ([name, defaultValue]: string[], { selfObj }: any) => {
+    const value = get(selfObj, name);
+    return value === undefined ? defaultValue : value;
   },
   helm: ([template]: string[]) => {
     const c0 = template[0];
@@ -468,7 +479,6 @@ export function emitNode({
         child = child.nextSibling;
       }
       const _arguments = [];
-
       while (child) {
         if (child.kind === NodeKind.ARG) {
           _arguments.push(child.value);
