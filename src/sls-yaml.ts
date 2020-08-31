@@ -6,7 +6,8 @@ const yaml = require("js-yaml");
 export function readYamlSync(
   pathOrData: Path | Buffer,
   parent?: ParentObject | null,
-  context: any = {}
+  context: any = {},
+  opts: any = {}
 ) {
   let data,
     basePath = "./";
@@ -32,7 +33,8 @@ export function readYamlSync(
     globalObj,
     parentPath,
     basePath,
-    context
+    context,
+    opts
   });
 
   return compiledDoc;
