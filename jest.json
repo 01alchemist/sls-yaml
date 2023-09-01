@@ -8,7 +8,7 @@
     }
   },
   "transform": {
-    "^.+\\.tsx?$": [ "ts-jest", { }]
+    "^.+\\.tsx?$": ["ts-jest", {}]
   },
   "testRegex": "(\\.(test|spec))\\.(ts)$",
   "moduleFileExtensions": ["ts", "js"],

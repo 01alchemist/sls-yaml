@@ -1,0 +1,2 @@
+provider:
+  name: ${file(./file.json):value}

@@ -475,6 +475,15 @@ describe("yaml-loader test suite", () => {
           description: "service-name@1",
         });
       });
+      it("Should evaluate recursive reference properties", () => {
+        const result = yaml("src/__mocks__/recursive-reference-properties.yml");
+
+        expect(result).toEqual({
+          name: "service-name",
+          version: 1,
+          description: "service-name@1",
+        });
+      });
     });
   });
 
