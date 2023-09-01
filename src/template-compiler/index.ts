@@ -24,6 +24,7 @@ type FunctionParameters = {
   selfObj?: any;
   parentObj?: any;
   context?: any;
+  opts?: any;
 };
 
 export const functions: FunctionMap = {
@@ -102,6 +103,9 @@ export const functions: FunctionMap = {
     const result = spawnSync("git", cmds);
     const output = result.output.toString().replace(/,|\n/gi, "");
     return output;
+  },
+  opt: ([name]: string[], { opts }: any) => {
+    return opts[name];
   },
   env: ([name]) => {
     return process.env[name];
@@ -331,6 +335,7 @@ type EmitNodeArg = {
   selfObj?: any;
   thisObj?: any;
   context?: any;
+  opts?: any;
 };
 
 /**
@@ -346,7 +351,8 @@ export function emitNode({
   selfObj = null,
   parentObj = null,
   thisObj = null,
-  context = {}
+  context = {},
+  opts
 }: EmitNodeArg): any {
   let options = {
     basePath,
@@ -356,7 +362,8 @@ export function emitNode({
     globalObj,
     selfObj,
     thisObj,
-    context
+    context,
+    opts
   };
   /* istanbul ignore next */
   if (!node) {

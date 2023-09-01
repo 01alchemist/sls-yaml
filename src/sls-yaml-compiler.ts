@@ -6,6 +6,7 @@ type CompileOptions = {
   parentPath: string;
   basePath: string;
   context?: any;
+  opts?: any;
 };
 
 export function compile({
@@ -13,7 +14,8 @@ export function compile({
   globalObj,
   parentPath,
   basePath,
-  context
+  context,
+  opts
 }: CompileOptions) {
   const parent = new Node(NodeKind.GROUP);
   const node = parse({ content: doc, parent });
@@ -22,7 +24,8 @@ export function compile({
     basePath,
     parentPath,
     globalObj,
-    context
+    context,
+    opts
   });
   return compiledJson;
 }
