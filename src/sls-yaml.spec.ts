@@ -303,7 +303,7 @@ describe("yaml-loader test suite", () => {
 
   describe("YAML extended exception test suite", () => {
     describe("When passing an unknown function reference", () => {
-      it("Should throw unknonw reference error", () => {
+      it("Should throw unknown reference error", () => {
         const content = Buffer.from(
           "config: ${unknown(src/__mocks__/file.yml)}"
         );
@@ -311,7 +311,7 @@ describe("yaml-loader test suite", () => {
         expect(() => {
           yaml(content);
         }).toThrowError(
-          `Unknonw reference error, "unknown" is not a known reference name`
+          `Unknown reference error, "unknown" is not a known reference name`
         );
       });
     });
@@ -336,13 +336,13 @@ describe("yaml-loader test suite", () => {
     });
 
     describe("When passing an unknown variable reference", () => {
-      it("Should throw unknonw reference error", () => {
+      it("Should throw unknown reference error", () => {
         const content = Buffer.from("config: ${unknown:my.var}");
 
         expect(() => {
           yaml(content);
         }).toThrowError(
-          `Unknonw reference error, "unknown" is not a known reference name`
+          `Unknown reference error, "unknown" is not a known reference name`
         );
       });
     });

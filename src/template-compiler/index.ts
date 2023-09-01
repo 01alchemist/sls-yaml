@@ -13,8 +13,8 @@ type FunctionMap = {
   [key: string]: (args: string[], parameters: FunctionParameters) => any;
 };
 
-export const UnknonwReference = (name: string) =>
-  `Unknonw reference error, "${name}" is not a known reference name`;
+export const UnknownReference = (name: string) =>
+  `Unknown reference error, "${name}" is not a known reference name`;
 
 type FunctionParameters = {
   basePath: string;
@@ -501,7 +501,7 @@ export function emitNode({
         });
         return result;
       }
-      throw new Error(UnknonwReference(functionName));
+      throw new Error(UnknownReference(functionName));
     }
   }
   /* istanbul ignore next */
