@@ -1,14 +1,11 @@
 const fs = require("fs");
-// const util = require("util");
 const path = require("path");
 const { spawnSync } = require("child_process");
 const get = require("lodash.get");
 const set = require("lodash.set");
 import readYamlSync from "../sls-yaml";
 import { readHelmTemplateSync } from "../helm-template";
-import { printNodes } from "./utils";
-if (printNodes) {
-}
+
 type FunctionMap = {
   [key: string]: (args: string[], parameters: FunctionParameters) => any;
 };
@@ -30,7 +27,7 @@ type FunctionParameters = {
 export const functions: FunctionMap = {
   file: (
     [uri, encoding],
-    { basePath, parentName, globalObj, parentPath = "", parentObj, context }
+    { basePath, parentName, globalObj, parentPath = "", parentObj, context },
   ) => {
     const ext = uri.substring(uri.lastIndexOf(".") + 1, uri.length);
     const resolvedPath = path.resolve(basePath, uri);
@@ -64,18 +61,18 @@ export const functions: FunctionMap = {
             fs.readFileSync(resolvedPath),
             {
               global: globalObj,
-              parentPath
+              parentPath,
             },
-            context
+            context,
           );
         } else {
           result = readYamlSync(
             resolvedPath,
             {
               global: globalObj,
-              parentPath
+              parentPath,
             },
-            context
+            context,
           );
         }
         break;
@@ -137,7 +134,7 @@ export const functions: FunctionMap = {
       }
     }
     return source.replace(searchValue, replaceValue);
-  }
+  },
 };
 
 export enum NodeKind {
@@ -152,7 +149,7 @@ export enum NodeKind {
   OBJECT,
   TEMPLATE,
   FUNCTION,
-  VARIABLE
+  VARIABLE,
 }
 
 export class Node {
@@ -182,7 +179,7 @@ export enum TokenKind {
 
   DOT,
   COMMA,
-  DEFAULT_VALUE
+  DEFAULT_VALUE,
 }
 
 export const tokens: any = {
@@ -194,7 +191,7 @@ export const tokens: any = {
   ")": TokenKind.RIGHT_PARENTHESIS,
   "[": TokenKind.LEFT_BRACKET,
   "]": TokenKind.RIGHT_BRACKET,
-  ":": TokenKind.COLON
+  ":": TokenKind.COLON,
 };
 
 export const tokenValues = Object.keys(tokens);
@@ -257,7 +254,7 @@ export function parseToken(value: any, parent: Node) {
           createNode(
             lastParent,
             NodeKind.VALUE_FRAGMENT,
-            buffer.substring(0, buffer.length - 1)
+            buffer.substring(0, buffer.length - 1),
           );
         }
 
@@ -276,7 +273,7 @@ export function parseToken(value: any, parent: Node) {
           const name = buffer.substring(0, buffer.length - 1).trim();
           const childNode = createNode(
             lastParent,
-            isVariable ? NodeKind.VARIABLE : NodeKind.FUNCTION
+            isVariable ? NodeKind.VARIABLE : NodeKind.FUNCTION,
           );
 
           childNode.firstChild = createNode(childNode, NodeKind.NAME, name);
@@ -297,7 +294,7 @@ export function parseToken(value: any, parent: Node) {
             if (buffer[0] === ",") {
               buffer = buffer.substring(1);
             }
-            buffer.split(",").map(v => {
+            buffer.split(",").map((v) => {
               v = v.trim();
               createNode(childNode, NodeKind.ARG, v);
               return v;
@@ -352,7 +349,7 @@ export function emitNode({
   parentObj = null,
   thisObj = null,
   context = {},
-  opts
+  opts,
 }: EmitNodeArg): any {
   let options = {
     basePath,
@@ -363,7 +360,7 @@ export function emitNode({
     selfObj,
     thisObj,
     context,
-    opts
+    opts,
   };
   /* istanbul ignore next */
   if (!node) {
@@ -403,7 +400,7 @@ export function emitNode({
           globalObj,
           selfObj,
           parentObj,
-          thisObj
+          thisObj,
         });
         child = child.nextSibling;
       }
@@ -419,13 +416,13 @@ export function emitNode({
         let valueNode = keyNode.nextSibling;
         const key = emitNode({
           node: keyNode,
-          ...options
+          ...options,
         });
         emitNode({
           node: valueNode,
           ...options,
           parentName: key,
-          parentObj: thisObj
+          parentObj: thisObj,
         });
       }
       return thisObj;
@@ -436,7 +433,7 @@ export function emitNode({
       while (child) {
         const value = emitNode({
           node: child,
-          ...options
+          ...options,
         });
 
         if (
@@ -473,7 +470,7 @@ export function emitNode({
       const child: Node = <Node>node.firstChild;
       return emitNode({
         node: child,
-        ...options
+        ...options,
       });
     }
     case NodeKind.FUNCTION:
@@ -492,7 +489,7 @@ export function emitNode({
         } else {
           const result = emitNode({
             node: child,
-            ...options
+            ...options,
           });
           _arguments.push(result);
         }
@@ -504,7 +501,7 @@ export function emitNode({
 
       if (func) {
         const result = func(_arguments, {
-          ...options
+          ...options,
         });
         return result;
       }
@@ -528,12 +525,12 @@ export function parse({ content, parent = null }: ParseArg): any {
     const kind = Array.isArray(content) ? NodeKind.ARRAY : NodeKind.OBJECT;
     const lastParent = createNode(parent, kind);
     const keys = Object.keys(content);
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const itemNode = createNode(lastParent, NodeKind.PAIR);
       createNode(itemNode, NodeKind.KEY, key);
       parse({
         content: content[key],
-        parent: itemNode
+        parent: itemNode,
       });
     });
     return lastParent;

@@ -107,7 +107,7 @@ describe("yaml-loader test suite", () => {
     describe("When passing a self reference", () => {
       it("Should replace self var with it's value", () => {
         const content = Buffer.from(
-          ["version: 1", "config: version-${self:version}"].join("\n")
+          ["version: 1", "config: version-${self:version}"].join("\n"),
         );
         const doc = yaml(content);
         expect(doc).toEqual({ version: 1, config: "version-1" });
@@ -116,14 +116,14 @@ describe("yaml-loader test suite", () => {
     describe("When passing a self reference with null value", () => {
       it("Should return prefix plus replace self var with null", () => {
         const content = Buffer.from(
-          ["version: null", "config: version-${self:version}"].join("\n")
+          ["version: null", "config: version-${self:version}"].join("\n"),
         );
         const doc = yaml(content);
         expect(doc).toEqual({ version: null, config: "version-null" });
       });
       it("Should replace self var with null", () => {
         const content = Buffer.from(
-          ["version: null", "config: ${self:version}"].join("\n")
+          ["version: null", "config: ${self:version}"].join("\n"),
         );
         const doc = yaml(content);
         expect(doc).toEqual({ version: null, config: null });
@@ -132,7 +132,7 @@ describe("yaml-loader test suite", () => {
     describe("When passing a file reference with env references", () => {
       it("Should replace value with file content", () => {
         const content = Buffer.from(
-          "config: ${file(src/__mocks__/file-env.yml)}"
+          "config: ${file(src/__mocks__/file-env.yml)}",
         );
         const doc = yaml(content);
         expect(doc).toEqual({ config: { key: "value-test" } });
@@ -141,10 +141,10 @@ describe("yaml-loader test suite", () => {
     describe("When passing a file reference with self references", () => {
       it("Should replace value with file content", () => {
         const content = Buffer.from(
-          "config: ${file(src/__mocks__/file-self.yml)}"
+          "config: ${file(src/__mocks__/file-self.yml)}",
         );
         const expected = {
-          config: { a: { b: "value-of-b" }, key: "key+value-of-b" }
+          config: { a: { b: "value-of-b" }, key: "key+value-of-b" },
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -153,10 +153,10 @@ describe("yaml-loader test suite", () => {
     describe("When passing a file reference with self references within a file reference", () => {
       it("Should correctly replace values from global object", () => {
         const content = Buffer.from(
-          "config: ${file(src/__mocks__/file-file-self.yml)}"
+          "config: ${file(src/__mocks__/file-file-self.yml)}",
         );
         const expected = {
-          config: { env: "development", values: { key: "key+development" } }
+          config: { env: "development", values: { key: "key+development" } },
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -166,10 +166,10 @@ describe("yaml-loader test suite", () => {
     describe("When passing a file reference with dynamic self references within a file reference", () => {
       it("Should replace value with file content", () => {
         const content = Buffer.from(
-          "config: ${file(src/__mocks__/file-file-self-dynamic.yml)}"
+          "config: ${file(src/__mocks__/file-file-self-dynamic.yml)}",
         );
         const expected = {
-          config: { env: "development", values: { key: "key+development" } }
+          config: { env: "development", values: { key: "key+development" } },
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -182,13 +182,13 @@ describe("yaml-loader test suite", () => {
           [
             "is-enabled: true",
             "isEnabled: ${self:is-enabled}",
-            "title: Feature enabled=${self:is-enabled}"
-          ].join("\n")
+            "title: Feature enabled=${self:is-enabled}",
+          ].join("\n"),
         );
         const expected = {
           "is-enabled": true,
           isEnabled: true,
-          title: "Feature enabled=true"
+          title: "Feature enabled=true",
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -199,13 +199,13 @@ describe("yaml-loader test suite", () => {
           [
             "is-enabled: false",
             "isEnabled: ${self:is-enabled}",
-            "title: Feature enabled=${self:is-enabled}"
-          ].join("\n")
+            "title: Feature enabled=${self:is-enabled}",
+          ].join("\n"),
         );
         const expected = {
           "is-enabled": false,
           isEnabled: false,
-          title: "Feature enabled=false"
+          title: "Feature enabled=false",
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -223,16 +223,16 @@ describe("yaml-loader test suite", () => {
             "  level2:",
             "    name: Level 2",
             "    level3:",
-            "      name: Level 3"
-          ].join("\n")
+            "      name: Level 3",
+          ].join("\n"),
         );
         const expected = {
           name: "MyName",
           version: 1,
           level1: {
             name: "Level 1",
-            level2: { name: "Level 2", level3: { name: "Level 3" } }
-          }
+            level2: { name: "Level 2", level3: { name: "Level 3" } },
+          },
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -240,7 +240,7 @@ describe("yaml-loader test suite", () => {
       it("Should build selfObj, globalObj and parentObj correctly", () => {
         const content = Buffer.from(["name: MyName"].join("\n"));
         const expected = {
-          name: "MyName"
+          name: "MyName",
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -254,8 +254,8 @@ describe("yaml-loader test suite", () => {
             "  name: Level 1",
             "  depth: 1",
             "  level2: ",
-            "    name: Level 2"
-          ].join("\n")
+            "    name: Level 2",
+          ].join("\n"),
         );
         const expected = {
           name: "MyName",
@@ -264,9 +264,9 @@ describe("yaml-loader test suite", () => {
             name: "Level 1",
             depth: 1,
             level2: {
-              name: "Level 2"
-            }
-          }
+              name: "Level 2",
+            },
+          },
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -281,8 +281,8 @@ describe("yaml-loader test suite", () => {
             "  level2:",
             "    name: ${self:level1.name}-Level 2",
             "    level3:",
-            "      name: ${self:level1.level2.name}-Level 3"
-          ].join("\n")
+            "      name: ${self:level1.level2.name}-Level 3",
+          ].join("\n"),
         );
         const expected = {
           name: "MyName",
@@ -291,9 +291,9 @@ describe("yaml-loader test suite", () => {
             name: "MyName-Level 1",
             level2: {
               name: "MyName-Level 1-Level 2",
-              level3: { name: "MyName-Level 1-Level 2-Level 3" }
-            }
-          }
+              level3: { name: "MyName-Level 1-Level 2-Level 3" },
+            },
+          },
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -305,13 +305,13 @@ describe("yaml-loader test suite", () => {
     describe("When passing an unknown function reference", () => {
       it("Should throw unknown reference error", () => {
         const content = Buffer.from(
-          "config: ${unknown(src/__mocks__/file.yml)}"
+          "config: ${unknown(src/__mocks__/file.yml)}",
         );
 
         expect(() => {
           yaml(content);
         }).toThrowError(
-          `Unknown reference error, "unknown" is not a known reference name`
+          `Unknown reference error, "unknown" is not a known reference name`,
         );
       });
     });
@@ -322,13 +322,13 @@ describe("yaml-loader test suite", () => {
           [
             "replicas: 3",
             "numReplicas: ${self:replicas}",
-            "title: No of replicas=${self:replicas}"
-          ].join("\n")
+            "title: No of replicas=${self:replicas}",
+          ].join("\n"),
         );
         const expected = {
           replicas: 3,
           numReplicas: 3,
-          title: "No of replicas=3"
+          title: "No of replicas=3",
         };
         const doc = yaml(content);
         expect(doc).toEqual(expected);
@@ -342,7 +342,7 @@ describe("yaml-loader test suite", () => {
         expect(() => {
           yaml(content);
         }).toThrowError(
-          `Unknown reference error, "unknown" is not a known reference name`
+          `Unknown reference error, "unknown" is not a known reference name`,
         );
       });
     });
@@ -354,12 +354,12 @@ describe("yaml-loader test suite", () => {
             "list:",
             "  - item 1",
             "  - ${file(src/__mocks__/file.yml)}",
-            "  - item 2"
-          ].join("\n")
+            "  - item 2",
+          ].join("\n"),
         );
         const doc = yaml(content);
         expect(doc).toEqual({
-          list: ["item 1", { key: "value" }, "item 2"]
+          list: ["item 1", { key: "value" }, "item 2"],
         });
       });
     });
@@ -375,14 +375,14 @@ describe("yaml-loader test suite", () => {
             "  - ${global:name}",
             "  - ${self:version}",
             "  - ${env:NODE_ENV}",
-            "  - item 2"
-          ].join("\n")
+            "  - item 2",
+          ].join("\n"),
         );
         const doc = yaml(content);
         expect(doc).toEqual({
           name: "variable-list",
           version: 1,
-          list: ["item 1", "variable-list", 1, "test", "item 2"]
+          list: ["item 1", "variable-list", 1, "test", "item 2"],
         });
       });
     });
@@ -398,8 +398,8 @@ describe("yaml-loader test suite", () => {
             "  - key2: ${global:name}",
             "  - key3: ${self:version}",
             "  - key4: ${env:NODE_ENV}",
-            "  - key5: item 2"
-          ].join("\n")
+            "  - key5: item 2",
+          ].join("\n"),
         );
         const doc = yaml(content);
         expect(doc).toEqual({
@@ -410,8 +410,8 @@ describe("yaml-loader test suite", () => {
             { key2: "variable-list" },
             { key3: 1 },
             { key4: "test" },
-            { key5: "item 2" }
-          ]
+            { key5: "item 2" },
+          ],
         });
       });
     });
@@ -425,8 +425,8 @@ describe("yaml-loader test suite", () => {
             "list:",
             "  - key1: item 1",
             "  - key2: ${file(src/__mocks__/file.yml)}",
-            "  - key3: item 2"
-          ].join("\n")
+            "  - key3: item 2",
+          ].join("\n"),
         );
         const doc = yaml(content);
         expect(doc).toEqual({
@@ -435,8 +435,8 @@ describe("yaml-loader test suite", () => {
           list: [
             { key1: "item 1" },
             { key2: { key: "value" } },
-            { key3: "item 2" }
-          ]
+            { key3: "item 2" },
+          ],
         });
       });
     });
@@ -464,15 +464,15 @@ describe("yaml-loader test suite", () => {
           [
             "name: service-name",
             "version: 1",
-            "description: ${self:name}@${self:version}"
-          ].join("\n")
+            "description: ${self:name}@${self:version}",
+          ].join("\n"),
         );
         const result = yaml(content);
 
         expect(result).toEqual({
           name: "service-name",
           version: 1,
-          description: "service-name@1"
+          description: "service-name@1",
         });
       });
     });
@@ -485,38 +485,38 @@ describe("yaml-loader test suite", () => {
           [
             "replicas: ${helm:'.Values.replicas'}",
             'name: ${helm:".Values.name" }',
-            "port: ${helm:.Values.port}"
-          ].join("\n")
+            "port: ${helm:.Values.port}",
+          ].join("\n"),
         );
         const result = yaml(content);
         expect(result).toEqual({
           name: "'{{ .Values.name }}'",
           port: "{{ .Values.port }}",
-          replicas: "'{{ .Values.replicas }}'"
+          replicas: "'{{ .Values.replicas }}'",
         });
       });
 
       it("Should pass-through utf-8 encoding", () => {
         const content = Buffer.from(
-          "template: ${file(./src/__mocks__/helm-template.yml, utf-8)}"
+          "template: ${file(./src/__mocks__/helm-template.yml, utf-8)}",
         );
         const result = yaml(content);
         expect(result.template).toBe(
-          "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n"
+          "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n",
         );
       });
       it("Should pass-through multiple syntax", () => {
         const content = Buffer.from(
-          "template: ${file(./src/__mocks__/helm-template.yml, helm)}"
+          "template: ${file(./src/__mocks__/helm-template.yml, helm)}",
         );
         const result = yaml(content);
         expect(result.template).toBe(
-          "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n"
+          "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n",
         );
       });
       it("Should pass-through and compile ${} templates syntax", () => {
         const content = Buffer.from(
-          "template: ${file(./src/__mocks__/helm-template-dynamic.yml, helm)}"
+          "template: ${file(./src/__mocks__/helm-template-dynamic.yml, helm)}",
         );
         const result = yaml(content);
         expect(result.template).toBe(
@@ -538,8 +538,8 @@ describe("yaml-loader test suite", () => {
             "      name: level1-level2",
             "      level3: ",
             "        name: level1-level2-level3",
-            ""
-          ].join("\n")
+            "",
+          ].join("\n"),
         );
       });
     });
@@ -552,8 +552,8 @@ describe("yaml-loader test suite", () => {
           [
             "name: service",
             "version: v1.0.2",
-            "subset: service@${replace(${self:version},/\\./gi,-)}"
-          ].join("\n")
+            "subset: service@${replace(${self:version},/\\./gi,-)}",
+          ].join("\n"),
         );
         const result = yaml(content);
         expect(result.subset).toBe("service@v1-0-2");
@@ -563,8 +563,8 @@ describe("yaml-loader test suite", () => {
           [
             "name: service",
             "version: v1-0-2",
-            "subset: service@${replace(${self:version},/\\./gi,-)}"
-          ].join("\n")
+            "subset: service@${replace(${self:version},/\\./gi,-)}",
+          ].join("\n"),
         );
         const result = yaml(content);
         expect(result.subset).toBe("service@v1-0-2");
@@ -574,8 +574,8 @@ describe("yaml-loader test suite", () => {
           [
             "name: service",
             "version: v1/0/2",
-            "subset: service@${replace(${self:version},/,-)}"
-          ].join("\n")
+            "subset: service@${replace(${self:version},/,-)}",
+          ].join("\n"),
         );
         const result = yaml(content);
         expect(result.subset).toBe("service@v1-0/2");
@@ -587,8 +587,8 @@ describe("yaml-loader test suite", () => {
           [
             "name: service",
             "version: v1.0.2",
-            "subset: service@${replace(${self:version},v,release-)}"
-          ].join("\n")
+            "subset: service@${replace(${self:version},v,release-)}",
+          ].join("\n"),
         );
         const result = yaml(content);
         expect(result.subset).toBe("service@release-1.0.2");
@@ -603,13 +603,13 @@ describe("yaml-loader test suite", () => {
           [
             "name: service",
             "version: v1.0.2",
-            "subset: service@${custom(${self:version})}"
-          ].join("\n")
+            "subset: service@${custom(${self:version})}",
+          ].join("\n"),
         );
         const result = yaml(content, null, {
           custom: ([arg]: string[]) => {
             return `${arg}-beta`;
-          }
+          },
         });
         expect(result.subset).toBe("service@v1.0.2-beta");
       });

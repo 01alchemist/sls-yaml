@@ -15,7 +15,7 @@ export function compile({
   parentPath,
   basePath,
   context,
-  opts
+  opts,
 }: CompileOptions) {
   const parent = new Node(NodeKind.GROUP);
   const node = parse({ content: doc, parent });
@@ -25,7 +25,7 @@ export function compile({
     parentPath,
     globalObj,
     context,
-    opts
+    opts,
   });
   return compiledJson;
 }

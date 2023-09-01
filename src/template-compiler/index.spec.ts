@@ -6,20 +6,20 @@ describe("Template compiler test suite", () => {
   describe("When passing a helm template path to file function", () => {
     it("Should load from disk and compiler templates and passthrough helm templates", () => {
       const data = functions.file(["./__mocks__/helm-template.yml", "helm"], {
-        basePath: path.resolve(__dirname, "../")
+        basePath: path.resolve(__dirname, "../"),
       });
       expect(data).toBe(
         [
           "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}",
-          ""
-        ].join("\n")
+          "",
+        ].join("\n"),
       );
     });
   });
   describe("When passing a yaml template path to file function", () => {
     it("Should load yaml file from disk and compile template", () => {
       const data = functions.file(["./__mocks__/file.yml"], {
-        basePath: path.resolve(__dirname, "../")
+        basePath: path.resolve(__dirname, "../"),
       });
       expect(data).toEqual({ key: "value" });
     });
@@ -27,7 +27,7 @@ describe("Template compiler test suite", () => {
   describe("When passing an empty template", () => {
     it("Should return null", () => {
       const data = functions.file(["./__mocks__/empty-template.yml"], {
-        basePath: path.resolve(__dirname, "../")
+        basePath: path.resolve(__dirname, "../"),
       });
       expect(data).toEqual({ key: null });
     });
@@ -39,7 +39,7 @@ describe("Template compiler parser test suite", () => {
     it("Should parse string correctly", () => {
       const content = "Service Name";
       const rootNode = parse({
-        content
+        content,
       });
       expect(printNodes(rootNode)).toBe(`[node:GROUP]
   [node:VALUE_FRAGMENT]=Service Name\n`);
@@ -50,7 +50,7 @@ describe("Template compiler parser test suite", () => {
     it("Should parse string correctly", () => {
       const content = "ServiceName@${self:version}";
       const rootNode = parse({
-        content
+        content,
       });
       const result = printNodes(rootNode);
       expect(result).toBe(`[node:GROUP]
@@ -66,7 +66,7 @@ describe("Template compiler parser test suite", () => {
     it("Should parse string correctly", () => {
       const content = "ServiceName@${func(arg1, arg2)}";
       const rootNode = parse({
-        content
+        content,
       });
       const result = printNodes(rootNode);
       expect(result).toBe(`[node:GROUP]
@@ -83,7 +83,7 @@ describe("Template compiler parser test suite", () => {
     it("Should parse string correctly", () => {
       const content = "ServiceName@${replace(${self:version, v0.0.0},.,-)}";
       const rootNode = parse({
-        content
+        content,
       });
       const result = printNodes(rootNode);
       expect(result).toBe(`[node:GROUP]
@@ -105,7 +105,7 @@ describe("Template compiler parser test suite", () => {
     it("Should parse object correctly", () => {
       const content = { name: "Service Name" };
       const rootNode = parse({
-        content
+        content,
       });
       expect(printNodes(rootNode)).toBe(`[node:OBJECT]
   [node:PAIR]
@@ -118,7 +118,7 @@ describe("Template compiler parser test suite", () => {
     it("Should parse array correctly", () => {
       const content = { hosts: ["0.0.0.0", "127.0.0.1"] };
       const rootNode = parse({
-        content
+        content,
       });
       const result = printNodes(rootNode);
       expect(result).toBe(`[node:OBJECT]
@@ -142,7 +142,7 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit string correctly", () => {
       const content = "Service Name";
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({ node: rootNode });
       expect(result).toBe(`Service Name`);
@@ -153,7 +153,7 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit single string correctly", () => {
       const content = "ServiceName@${self:version}";
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({ node: rootNode });
       expect(result).toBe(`ServiceName@undefined`);
@@ -164,20 +164,20 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit string correctly", () => {
       const content = {
         version: "v1.0.0",
-        name: "ServiceName@${func(arg1, arg2)}"
+        name: "ServiceName@${func(arg1, arg2)}",
       };
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({
         node: rootNode,
         context: {
-          func: ([arg1, arg2]: string[]) => `ok[${arg1}, ${arg2}]`
-        }
+          func: ([arg1, arg2]: string[]) => `ok[${arg1}, ${arg2}]`,
+        },
       });
       expect(result).toEqual({
         version: "v1.0.0",
-        name: "ServiceName@ok[arg1, arg2]"
+        name: "ServiceName@ok[arg1, arg2]",
       });
     });
   });
@@ -186,13 +186,13 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit nested template value correctly", () => {
       const content = {
         version: "v1.0.0",
-        name: "ServiceName@${replace(${self:version, v0.0.0},.,-)}"
+        name: "ServiceName@${replace(${self:version, v0.0.0},.,-)}",
       };
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({
-        node: rootNode
+        node: rootNode,
       });
       expect(result).toEqual({ version: "v1.0.0", name: "ServiceName@v1-0.0" });
     });
@@ -200,11 +200,11 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit self value correctly", () => {
       const content = {
         version: "v1.0.0",
-        name: "ServiceName@${self:version}"
+        name: "ServiceName@${self:version}",
       };
 
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({ node: rootNode });
       expect(result).toEqual({ version: "v1.0.0", name: "ServiceName@v1.0.0" });
@@ -213,13 +213,13 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit nested template reg express correctly", () => {
       const content = {
         version: "v1.0.0",
-        name: "ServiceName@${replace(${ self : version, v0.0.0 }, /\\./gi, - )}"
+        name: "ServiceName@${replace(${ self : version, v0.0.0 }, /\\./gi, - )}",
       };
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({
-        node: rootNode
+        node: rootNode,
       });
       expect(result).toEqual({ version: "v1.0.0", name: "ServiceName@v1-0-0" });
     });
@@ -229,43 +229,43 @@ describe("Template compiler emitter test suite", () => {
     it("Should emit array correctly", () => {
       const content = { hosts: ["0.0.0.0", "127.0.0.1"] };
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({
-        node: rootNode
+        node: rootNode,
       });
       expect(result).toEqual({ hosts: ["0.0.0.0", "127.0.0.1"] });
     });
     it("Should emit self template array correctly", () => {
       const content = {
         domain: "01alchemist.com",
-        hosts: ["0.0.0.0", "127.0.0.1", "${self:domain}"]
+        hosts: ["0.0.0.0", "127.0.0.1", "${self:domain}"],
       };
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({
-        node: rootNode
+        node: rootNode,
       });
       expect(result).toEqual({
         domain: "01alchemist.com",
-        hosts: ["0.0.0.0", "127.0.0.1", "01alchemist.com"]
+        hosts: ["0.0.0.0", "127.0.0.1", "01alchemist.com"],
       });
     });
     it("Should emit global template array correctly", () => {
       const content = {
         domain: "01alchemist.com",
-        hosts: ["0.0.0.0", "127.0.0.1", "${global:domain}"]
+        hosts: ["0.0.0.0", "127.0.0.1", "${global:domain}"],
       };
       const rootNode = parse({
-        content
+        content,
       });
       const result = emitNode({
-        node: rootNode
+        node: rootNode,
       });
       expect(result).toEqual({
         domain: "01alchemist.com",
-        hosts: ["0.0.0.0", "127.0.0.1", "01alchemist.com"]
+        hosts: ["0.0.0.0", "127.0.0.1", "01alchemist.com"],
       });
     });
   });

@@ -7,7 +7,7 @@ export function readYamlSync(
   pathOrData: Path | Buffer,
   parent?: ParentObject | null,
   context: any = {},
-  opts: any = {}
+  opts: any = {},
 ) {
   let data,
     basePath = "./";
@@ -20,7 +20,7 @@ export function readYamlSync(
     data = pathOrData.toString();
   }
 
-  const doc = yaml.safeLoad(data);
+  const doc = yaml.load(data);
   let globalObj: any = null;
   let parentPath: any = null;
   if (parent) {
@@ -34,7 +34,7 @@ export function readYamlSync(
     parentPath,
     basePath,
     context,
-    opts
+    opts,
   });
 
   return compiledDoc;

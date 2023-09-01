@@ -3,7 +3,6 @@ const path = require("path");
 const webpack = require("webpack");
 const nodeExternals = require("webpack-node-externals");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const PrettierPlugin = require("prettier-webpack-plugin");
 const pkg = require("./package.json");
 const tsConfig = require("./tsconfig.json");
 
@@ -11,14 +10,14 @@ const mode =
   process.env.NODE_ENV === "production" ? "production" : "development";
 const isDevMode = mode === "development";
 const prodEntries = {
-  index: ["./src/index.ts"]
+  index: ["./src/index.ts"],
 };
 
 const outDir = "dist";
 const entries = isDevMode
   ? {
       ...prodEntries,
-      index: ["webpack/hot/poll?1000", "./src/index.ts"]
+      index: ["webpack/hot/poll?1000", "./src/index.ts"],
     }
   : prodEntries;
 
@@ -42,7 +41,7 @@ const buildNum = () => {
 const { baseUrl } = tsConfig.compilerOptions;
 const tsPaths = tsConfig.compilerOptions.paths;
 const resolvedTsPaths = {};
-Object.keys(tsPaths).forEach(pathName => {
+Object.keys(tsPaths).forEach((pathName) => {
   const [tsPath] = tsPaths[pathName];
   let cleanPathName = pathName.replace(/\*/gi, "");
   cleanPathName =
@@ -52,7 +51,7 @@ Object.keys(tsPaths).forEach(pathName => {
   const resolvedPath = path.resolve(
     __dirname,
     baseUrl,
-    tsPath.replace(/\*/gi, "")
+    tsPath.replace(/\*/gi, ""),
   );
   resolvedTsPaths[cleanPathName] = resolvedPath;
 });
@@ -66,39 +65,38 @@ module.exports = {
   mode,
   node: {
     __dirname: false,
-    __filename: false
+    __filename: false,
   },
   context: __dirname,
   entry: entries,
   externals: [
     nodeExternals({
-      whitelist: ["webpack/hot/poll?1000"]
-    })
+      allowlist: ["webpack/hot/poll?1000"],
+    }),
   ],
   devtool: "source-map",
   optimization: {
-    minimize: false
+    minimize: false,
+    moduleIds: "named",
   },
   devServer: {
     hot: true,
     contentBase: path.resolve(__dirname),
-    publicPath: "/"
+    publicPath: "/",
   },
   resolve: {
     extensions: [".ts", ".js"],
     alias: {
-      ...resolvedTsPaths
-    }
+      ...resolvedTsPaths,
+    },
   },
   plugins: [
     ...(isDevMode ? [] : [new CleanWebpackPlugin()]),
     new webpack.DefinePlugin({
-      VERSION: JSON.stringify(pkg.version + buildNum())
+      VERSION: JSON.stringify(pkg.version + buildNum()),
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.NamedModulesPlugin(),
-    new PrettierPlugin()
   ],
   module: {
     rules: [
@@ -107,10 +105,10 @@ module.exports = {
         loader: "ts-loader",
         exclude: /node_modules/,
         options: {
-          transpileOnly: false
-        }
-      }
-    ]
+          transpileOnly: false,
+        },
+      },
+    ],
   },
   output: {
     filename: "[name].js",
@@ -119,6 +117,6 @@ module.exports = {
       return path.resolve(__dirname, encodeURI(info.resourcePath));
     },
     library: "[name]",
-    libraryTarget: "umd"
-  }
+    libraryTarget: "umd",
+  },
 };

@@ -6,7 +6,7 @@ const yaml = require("js-yaml");
 export function encodeHelmTemplates(data: string) {
   const lines = data.split("\n");
   return lines
-    .map(line => {
+    .map((line) => {
       if (line) {
         let values = line;
         let key;
@@ -49,7 +49,7 @@ export function decodeHelmTemplates(data: string) {
   }
   const lines = data.split("\n");
   return lines
-    .map(line => {
+    .map((line) => {
       if (line) {
         let values = line;
         let key;
@@ -70,7 +70,7 @@ export function decodeHelmTemplates(data: string) {
             let arrayValue = reset.join("-").trim();
             // Match yaml object key
             const objMatch = arrayValue.match(
-              /^[A-Za-z_]((\w|[^:]\W)*\s*?)(?=:)/
+              /^[A-Za-z_]((\w|[^:]\W)*\s*?)(?=:)/,
             );
             if (objMatch) {
               key = `${indent}- ${objMatch[0]}`;
@@ -104,7 +104,7 @@ export function decodeHelmTemplates(data: string) {
 export function readHelmTemplateSync(
   pathOrData: Path | Buffer,
   parent?: ParentObject,
-  context?: any
+  context?: any,
 ) {
   let data,
     basePath = "./";
@@ -119,7 +119,7 @@ export function readHelmTemplateSync(
   }
   data = encodeHelmTemplates(data);
 
-  const doc = yaml.safeLoad(data);
+  const doc = yaml.load(data);
 
   let globalObj: any = null;
   let parentPath: any = null;
@@ -132,9 +132,9 @@ export function readHelmTemplateSync(
     globalObj,
     parentPath,
     basePath,
-    context
+    context,
   });
-  const yamlData = yaml.safeDump(compiledDoc);
+  const yamlData = yaml.dump(compiledDoc);
   const decodedYaml = decodeHelmTemplates(yamlData);
   return decodedYaml;
 }

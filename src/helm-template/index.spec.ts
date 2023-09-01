@@ -5,13 +5,13 @@ describe("Helm template test suite", () => {
   describe("When passing a helm template path", () => {
     it("Should load from disk", () => {
       const data = readHelmTemplateSync(
-        path.resolve(__dirname, "../__mocks__/helm-template.yml")
+        path.resolve(__dirname, "../__mocks__/helm-template.yml"),
       );
       expect(data).toBe(
         [
           "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}",
-          ""
-        ].join("\n")
+          "",
+        ].join("\n"),
       );
     });
   });
@@ -21,18 +21,18 @@ describe("Helm template test suite", () => {
       expect(() => {
         readHelmTemplateSync(buffer);
       }).toThrowError(
-        "end of the stream or a document separator is expected at line 1, column 1"
+        "end of the stream or a document separator is expected (1:1)",
       );
     });
   });
   describe("When passing a helm template as Buffer", () => {
     it("Should load from Buffer", () => {
       const buffer = Buffer.from(
-        "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}",
       );
       const data = readHelmTemplateSync(buffer);
       expect(data).toBe(
-        "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n"
+        "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n",
       );
     });
   });
@@ -57,8 +57,8 @@ describe("Helm template test suite", () => {
           `    - containerPort: { { .Values.containerPort } }`,
           `  volumeMounts:`,
           `    - name: tz-config`,
-          `      mountPath: /etc/localtime`
-        ].join("\n")
+          `      mountPath: /etc/localtime`,
+        ].join("\n"),
       );
       const expected = [
         `containers: `,
@@ -79,14 +79,14 @@ describe("Helm template test suite", () => {
         `    volumeMounts: `,
         `      - name: tz-config`,
         `        mountPath: /etc/localtime`,
-        ``
+        ``,
       ]
-        .map(str => str.replace(/\s/gi, "༌"))
+        .map((str) => str.replace(/\s/gi, "༌"))
         .join("\n");
 
       const data = readHelmTemplateSync(buffer)
         .split("\n")
-        .map(str => str.replace(/\s/gi, "༌"))
+        .map((str) => str.replace(/\s/gi, "༌"))
         .join("\n");
 
       expect(data).toBe(expected);
