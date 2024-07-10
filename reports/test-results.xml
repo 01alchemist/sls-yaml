@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="93" failures="0" errors="0" time="2.784">
+  <testsuite name="Helm template test suite" errors="0" failures="0" skipped="0" timestamp="2024-07-10T08:26:08" time="1.695" tests="4">
+    <testcase classname="Helm template test suite When passing a helm template path Should load from disk" name="Helm template test suite When passing a helm template path Should load from disk" time="0.006">
+    </testcase>
+    <testcase classname="Helm template test suite When passing a wrong helm template Should load from disk" name="Helm template test suite When passing a wrong helm template Should load from disk" time="0.009">
+    </testcase>
+    <testcase classname="Helm template test suite When passing a helm template as Buffer Should load from Buffer" name="Helm template test suite When passing a helm template as Buffer Should load from Buffer" time="0">
+    </testcase>
+    <testcase classname="Helm template test suite When passing a helm template with object array Should load from Buffer" name="Helm template test suite When passing a helm template with object array Should load from Buffer" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Print nodes test suite" errors="0" failures="0" skipped="0" timestamp="2024-07-10T08:26:08" time="1.7" tests="1">
+    <testcase classname="Print nodes test suite When passing null node Should return empty string" name="Print nodes test suite When passing null node Should return empty string" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="get function" errors="0" failures="0" skipped="0" timestamp="2024-07-10T08:26:08" time="1.768" tests="9">
+    <testcase classname="get function should get a nested value from an object" name="get function should get a nested value from an object" time="0.002">
+    </testcase>
+    <testcase classname="get function should return default value if path does not exist" name="get function should return default value if path does not exist" time="0">
+    </testcase>
+    <testcase classname="get function should return undefined if path does not exist and no default value is provided" name="get function should return undefined if path does not exist and no default value is provided" time="0">
+    </testcase>
+    <testcase classname="get function should handle array path" name="get function should handle array path" time="0">
+    </testcase>
+    <testcase classname="get function should return default value for invalid path" name="get function should return default value for invalid path" time="0">
+    </testcase>
+    <testcase classname="get function should return default value for non-object root" name="get function should return default value for non-object root" time="0">
+    </testcase>
+    <testcase classname="get function should handle null and undefined gracefully" name="get function should handle null and undefined gracefully" time="0.001">
+    </testcase>
+    <testcase classname="get function should get value for single key path" name="get function should get value for single key path" time="0">
+    </testcase>
+    <testcase classname="get function should handle empty path" name="get function should handle empty path" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="yaml-loader test suite" errors="0" failures="0" skipped="0" timestamp="2024-07-10T08:26:08" time="1.783" tests="45">
+    <testcase classname="yaml-loader test suite YAML standard spec test suite Should return number value" name="yaml-loader test suite YAML standard spec test suite Should return number value" time="0.005">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML standard spec test suite Should return string value" name="yaml-loader test suite YAML standard spec test suite Should return string value" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing yaml file path Should load yaml from path" name="yaml-loader test suite YAML extended test suite When passing yaml file path Should load yaml from path" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing yaml file buffer Should load yaml from path" name="yaml-loader test suite YAML extended test suite When passing yaml file buffer Should load yaml from path" time="0.002">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a yaml file reference Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a yaml file reference Should replace value with file content" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a yaml file reference without key Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a yaml file reference without key Should replace value with file content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a json file reference Should replace value with file&apos;s content" name="yaml-loader test suite YAML extended test suite When passing a json file reference Should replace value with file&apos;s content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a text file reference Should replace value with file&apos;s content" name="yaml-loader test suite YAML extended test suite When passing a text file reference Should replace value with file&apos;s content" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference Should replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference Should replace env var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference Should replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference Should replace env var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a undefined env reference Should replace env var with undefined object" name="yaml-loader test suite YAML extended test suite When passing a undefined env reference Should replace env var with undefined object" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference with prefix Should return prefix plus replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference with prefix Should return prefix plus replace env var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference with suffix Should return suffix plus replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference with suffix Should return suffix plus replace env var with it&apos;s value" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a env reference with prefix and suffix Should return prefix and suffix plus replace env var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a env reference with prefix and suffix Should return prefix and suffix plus replace env var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a self reference Should replace self var with it&apos;s value" name="yaml-loader test suite YAML extended test suite When passing a self reference Should replace self var with it&apos;s value" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should return prefix plus replace self var with null" name="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should return prefix plus replace self var with null" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should replace self var with null" name="yaml-loader test suite YAML extended test suite When passing a self reference with null value Should replace self var with null" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with env references Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a file reference with env references Should replace value with file content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with self references Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a file reference with self references Should replace value with file content" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with self references within a file reference Should correctly replace values from global object" name="yaml-loader test suite YAML extended test suite When passing a file reference with self references within a file reference Should correctly replace values from global object" time="0.007">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing a file reference with dynamic self references within a file reference Should replace value with file content" name="yaml-loader test suite YAML extended test suite When passing a file reference with dynamic self references within a file reference Should replace value with file content" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:true values properly" name="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:true values properly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:false values properly" name="yaml-loader test suite YAML extended test suite When passing boolean values Should cast boolean:false values properly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing multi level object Should build object correctly" name="yaml-loader test suite YAML extended test suite When passing multi level object Should build object correctly" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing multi level object Should build selfObj, globalObj and parentObj correctly" name="yaml-loader test suite YAML extended test suite When passing multi level object Should build selfObj, globalObj and parentObj correctly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing multi level object Should build selfObj, globalObj and parentObj correctly" name="yaml-loader test suite YAML extended test suite When passing multi level object Should build selfObj, globalObj and parentObj correctly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended test suite When passing multi level object Should build selfObj, globalObj and parentObj correctly" name="yaml-loader test suite YAML extended test suite When passing multi level object Should build selfObj, globalObj and parentObj correctly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing an unknown function reference Should throw unknonw reference error" name="yaml-loader test suite YAML extended exception test suite When passing an unknown function reference Should throw unknonw reference error" time="0.023">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing integer values Should cast integer values properly" name="yaml-loader test suite YAML extended exception test suite When passing integer values Should cast integer values properly" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing an unknown variable reference Should throw unknonw reference error" name="yaml-loader test suite YAML extended exception test suite When passing an unknown variable reference Should throw unknonw reference error" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing an list with file reference Should return concatenated list" name="yaml-loader test suite YAML extended exception test suite When passing an list with file reference Should return concatenated list" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing an list with variable reference Should return concatenated list" name="yaml-loader test suite YAML extended exception test suite When passing an list with variable reference Should return concatenated list" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing a list of object with variable reference Should return concatenated list" name="yaml-loader test suite YAML extended exception test suite When passing a list of object with variable reference Should return concatenated list" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing a list of object with file reference Should return concatenated list" name="yaml-loader test suite YAML extended exception test suite When passing a list of object with file reference Should return concatenated list" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite YAML extended exception test suite When passing a git:sha1 command Should return result of command" name="yaml-loader test suite YAML extended exception test suite When passing a git:sha1 command Should return result of command" time="0.011">
+    </testcase>
+    <testcase classname="yaml-loader test suite Multi template syntax test suite When passing a multiple template syntax Should evaluate all templates" name="yaml-loader test suite Multi template syntax test suite When passing a multiple template syntax Should evaluate all templates" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through those syntax" name="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through those syntax" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through utf-8 encoding" name="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through utf-8 encoding" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through multiple syntax" name="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through multiple syntax" time="0.002">
+    </testcase>
+    <testcase classname="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through and compile ${} templates syntax" name="yaml-loader test suite Helm template syntax test suite When passing a helm template syntax Should pass-through and compile ${} templates syntax" time="0.002">
+    </testcase>
+    <testcase classname="yaml-loader test suite Replace test suite When passing a string and regexp replace pattern Should replace string" name="yaml-loader test suite Replace test suite When passing a string and regexp replace pattern Should replace string" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite Replace test suite When passing a string and regexp replace pattern Should not replace if pattern does not match" name="yaml-loader test suite Replace test suite When passing a string and regexp replace pattern Should not replace if pattern does not match" time="0.001">
+    </testcase>
+    <testcase classname="yaml-loader test suite Replace test suite When passing a string and regexp replace pattern Should replace if pattern starts woth / and not a regexp" name="yaml-loader test suite Replace test suite When passing a string and regexp replace pattern Should replace if pattern starts woth / and not a regexp" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite Replace test suite When passing a string and string replace pattern Should replace string" name="yaml-loader test suite Replace test suite When passing a string and string replace pattern Should replace string" time="0">
+    </testcase>
+    <testcase classname="yaml-loader test suite Custom extension test suite When passing a constum context Should use custom functions" name="yaml-loader test suite Custom extension test suite When passing a constum context Should use custom functions" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="set function" errors="0" failures="0" skipped="0" timestamp="2024-07-10T08:26:09" time="0.09" tests="12">
+    <testcase classname="set function should set a nested value in an object" name="set function should set a nested value in an object" time="0.001">
+    </testcase>
+    <testcase classname="set function should set a nested value in an array" name="set function should set a nested value in an array" time="0">
+    </testcase>
+    <testcase classname="set function should create intermediate objects as needed" name="set function should create intermediate objects as needed" time="0">
+    </testcase>
+    <testcase classname="set function should handle an empty path" name="set function should handle an empty path" time="0.001">
+    </testcase>
+    <testcase classname="set function should handle a single key path" name="set function should handle a single key path" time="0">
+    </testcase>
+    <testcase classname="set function should overwrite existing value" name="set function should overwrite existing value" time="0">
+    </testcase>
+    <testcase classname="set function should work with numeric keys in arrays" name="set function should work with numeric keys in arrays" time="0">
+    </testcase>
+    <testcase classname="set function should create intermediate arrays if next key is a number" name="set function should create intermediate arrays if next key is a number" time="0">
+    </testcase>
+    <testcase classname="set function should do nothing if the object is null or undefined" name="set function should do nothing if the object is null or undefined" time="0">
+    </testcase>
+    <testcase classname="set function should handle paths with dots and brackets correctly" name="set function should handle paths with dots and brackets correctly" time="0">
+    </testcase>
+    <testcase classname="set function should work with array paths" name="set function should work with array paths" time="0.001">
+    </testcase>
+    <testcase classname="set function should handle non-object root gracefully" name="set function should handle non-object root gracefully" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Template compiler test suite" errors="0" failures="0" skipped="0" timestamp="2024-07-10T08:26:08" time="2.633" tests="22">
+    <testcase classname="Template compiler test suite When passing a helm template path to file function Should load from disk and compiler templates and passthrough helm templates" name="Template compiler test suite When passing a helm template path to file function Should load from disk and compiler templates and passthrough helm templates" time="0.006">
+    </testcase>
+    <testcase classname="Template compiler test suite When passing a yaml template path to file function Should load yaml file from disk and compile template" name="Template compiler test suite When passing a yaml template path to file function Should load yaml file from disk and compile template" time="0.001">
+    </testcase>
+    <testcase classname="Template compiler test suite When passing an empty template Should return null" name="Template compiler test suite When passing an empty template Should return null" time="0">
+    </testcase>
+    <testcase classname="Template compiler parser test suite When passing a string Should parse string correctly" name="Template compiler parser test suite When passing a string Should parse string correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler parser test suite When passing a string with variable template Should parse string correctly" name="Template compiler parser test suite When passing a string with variable template Should parse string correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler parser test suite When passing a string with function template Should parse string correctly" name="Template compiler parser test suite When passing a string with function template Should parse string correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler parser test suite When passing a string with nested template with default value Should parse string correctly" name="Template compiler parser test suite When passing a string with nested template with default value Should parse string correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler parser test suite When passing an object Should parse object correctly" name="Template compiler parser test suite When passing an object Should parse object correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler parser test suite When passing an array Should parse array correctly" name="Template compiler parser test suite When passing an array Should parse array correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing a string Should emit string correctly" name="Template compiler emitter test suite When passing a string Should emit string correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing a string with variable template Should emit single string correctly" name="Template compiler emitter test suite When passing a string with variable template Should emit single string correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing a string with function template Should emit string correctly" name="Template compiler emitter test suite When passing a string with function template Should emit string correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing an object with nested template with default value Should emit nested template value correctly" name="Template compiler emitter test suite When passing an object with nested template with default value Should emit nested template value correctly" time="0.001">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing an object with nested template with default value Should emit self value correctly" name="Template compiler emitter test suite When passing an object with nested template with default value Should emit self value correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing an object with nested template with default value Should emit nested template reg express correctly" name="Template compiler emitter test suite When passing an object with nested template with default value Should emit nested template reg express correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing an array Should emit array correctly" name="Template compiler emitter test suite When passing an array Should emit array correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing an array Should emit self template array correctly" name="Template compiler emitter test suite When passing an array Should emit self template array correctly" time="0.001">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing an array Should emit global template array correctly" name="Template compiler emitter test suite When passing an array Should emit global template array correctly" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing a valid globalObj Should read value from globalObj and emit tha same value" name="Template compiler emitter test suite When passing a valid globalObj Should read value from globalObj and emit tha same value" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing a null globalObj and valid parentObj Should read value from parentObj and emit tha same value" name="Template compiler emitter test suite When passing a null globalObj and valid parentObj Should read value from parentObj and emit tha same value" time="0">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing a valid globalObj and parentObj Should read value from globalObj and emit tha same value" name="Template compiler emitter test suite When passing a valid globalObj and parentObj Should read value from globalObj and emit tha same value" time="0.001">
+    </testcase>
+    <testcase classname="Template compiler emitter test suite When passing git:branch Should read value from current git branch" name="Template compiler emitter test suite When passing git:branch Should read value from current git branch" time="0.008">
+    </testcase>
+  </testsuite>
+</testsuites>

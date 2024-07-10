@@ -1,0 +1,36 @@
+{
+  "transform": {
+    ".(ts|tsx)$": [
+      "ts-jest",
+      {
+        "tsconfig": "./tsconfig.json"
+      }
+    ]
+  },
+  "testEnvironment": "node",
+  "testRegex": "(\\.(test|spec))\\.(ts)$",
+  "moduleFileExtensions": ["ts", "js"],
+  "modulePathIgnorePatterns": ["bin", ".history"],
+  "moduleNameMapper": {},
+  "moduleDirectories": ["node_modules", "src"],
+  "coverageProvider": "v8",
+  "coverageDirectory": "coverage",
+  "coverageThreshold": {
+    "global": {
+      "branches": 80,
+      "functions": 100,
+      "lines": 100,
+      "statements": 100
+    }
+  },
+  "reporters": [
+    "default",
+    [
+      "jest-junit",
+      {
+        "outputDirectory": "reports",
+        "outputName": "test-results.xml"
+      }
+    ]
+  ]
+}

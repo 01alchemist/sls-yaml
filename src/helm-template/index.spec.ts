@@ -1,43 +1,41 @@
-const path = require("path");
-import { readHelmTemplateSync } from ".";
+const path = require('path')
+import { readHelmTemplateSync } from '.'
 
-describe("Helm template test suite", () => {
-  describe("When passing a helm template path", () => {
-    it("Should load from disk", () => {
+describe('Helm template test suite', () => {
+  describe('When passing a helm template path', () => {
+    it('Should load from disk', () => {
       const data = readHelmTemplateSync(
-        path.resolve(__dirname, "../__mocks__/helm-template.yml")
-      );
+        path.resolve(__dirname, '../__mocks__/helm-template.yml')
+      )
       expect(data).toBe(
         [
-          "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}",
-          ""
-        ].join("\n")
-      );
-    });
-  });
-  describe("When passing a wrong helm template", () => {
-    it("Should load from disk", () => {
-      const buffer = Buffer.from("@:image");
+          'image: {{ .Values.image.repository }}:{{ .Values.image.tag }}',
+          ''
+        ].join('\n')
+      )
+    })
+  })
+  describe('When passing a wrong helm template', () => {
+    it('Should load from disk', () => {
+      const buffer = Buffer.from('@:image')
       expect(() => {
-        readHelmTemplateSync(buffer);
-      }).toThrowError(
-        "end of the stream or a document separator is expected at line 1, column 1"
-      );
-    });
-  });
-  describe("When passing a helm template as Buffer", () => {
-    it("Should load from Buffer", () => {
+        readHelmTemplateSync(buffer)
+      }).toThrow('end of the stream or a document separator is expected (1:1)')
+    })
+  })
+  describe('When passing a helm template as Buffer', () => {
+    it('Should load from Buffer', () => {
       const buffer = Buffer.from(
-        "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}"
-      );
-      const data = readHelmTemplateSync(buffer);
+        'image: {{ .Values.image.repository }}:{{ .Values.image.tag }}'
+      )
+      const data = readHelmTemplateSync(buffer)
       expect(data).toBe(
-        "image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n"
-      );
-    });
-  });
-  describe("When passing a helm template with object array", () => {
-    it("Should load from Buffer", () => {
+        'image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\n'
+      )
+    })
+  })
+  describe('When passing a helm template with object array', () => {
+    it('Should load from Buffer', () => {
       const buffer = Buffer.from(
         [
           `containers:`,
@@ -58,8 +56,8 @@ describe("Helm template test suite", () => {
           `  volumeMounts:`,
           `    - name: tz-config`,
           `      mountPath: /etc/localtime`
-        ].join("\n")
-      );
+        ].join('\n')
+      )
       const expected = [
         `containers: `,
         `  - name: {{ .Values.name }}`,
@@ -81,15 +79,15 @@ describe("Helm template test suite", () => {
         `        mountPath: /etc/localtime`,
         ``
       ]
-        .map(str => str.replace(/\s/gi, "༌"))
-        .join("\n");
+        .map(str => str.replace(/\s/gi, '༌'))
+        .join('\n')
 
       const data = readHelmTemplateSync(buffer)
-        .split("\n")
-        .map(str => str.replace(/\s/gi, "༌"))
-        .join("\n");
+        .split('\n')
+        .map(str => str.replace(/\s/gi, '༌'))
+        .join('\n')
 
-      expect(data).toBe(expected);
-    });
-  });
-});
+      expect(data).toBe(expected)
+    })
+  })
+})

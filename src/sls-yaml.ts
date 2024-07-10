@@ -1,7 +1,7 @@
-import { compile } from "./sls-yaml-compiler";
-import { Path, ParentObject } from "./types";
-const fs = require("fs");
-const yaml = require("js-yaml");
+import { compile } from './sls-yaml-compiler'
+import { Path, ParentObject } from './types'
+const fs = require('fs')
+const yaml = require('js-yaml')
 
 export function readYamlSync(
   pathOrData: Path | Buffer,
@@ -9,22 +9,22 @@ export function readYamlSync(
   context: any = {}
 ) {
   let data,
-    basePath = "./";
+    basePath = './'
 
-  if (typeof pathOrData === "string") {
-    basePath = pathOrData.substring(0, pathOrData.lastIndexOf("/"));
-    data = fs.readFileSync(pathOrData, "utf8");
+  if (typeof pathOrData === 'string') {
+    basePath = pathOrData.substring(0, pathOrData.lastIndexOf('/'))
+    data = fs.readFileSync(pathOrData, 'utf8')
   }
   if (pathOrData instanceof Buffer) {
-    data = pathOrData.toString();
+    data = pathOrData.toString()
   }
 
-  const doc = yaml.safeLoad(data);
-  let globalObj: any = null;
-  let parentPath: any = null;
+  const doc = yaml.load(data)
+  let globalObj: any = null
+  let parentPath: any = null
   if (parent) {
-    globalObj = parent.global;
-    parentPath = parent.parentPath;
+    globalObj = parent.global
+    parentPath = parent.parentPath
   }
 
   const compiledDoc = compile({
@@ -33,9 +33,9 @@ export function readYamlSync(
     parentPath,
     basePath,
     context
-  });
+  })
 
-  return compiledDoc;
+  return compiledDoc
 }
 
-export default readYamlSync;
+export default readYamlSync

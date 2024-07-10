@@ -1,1 +1,1 @@
-export * from "./sls-yaml";
+export * from './sls-yaml'
