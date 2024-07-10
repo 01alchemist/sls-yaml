@@ -27,7 +27,7 @@
     "build": "npm run clean && NODE_ENV=production && tsc -p tsconfig.json && copyfiles package.json ./dist",
     "precommit": "lint-staged",
     "tdd": "NODE_ENV=test jest --ci --config=./jest.config.json --coverage --watch",
-    "test": "NODE_ENV=test jest --ci --config=./jest.config.json --coverage"
+    "test": "NODE_ENV=test jest --ci --config=./jest.config.json"
   },
   "lint-staged": {
     "*.ts": [
