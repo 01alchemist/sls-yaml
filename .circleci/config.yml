@@ -49,7 +49,7 @@ references:
 executors:
   node:
     docker:
-      - image: circleci/node:20
+      - image: cimg/node:22.4.1
     working_directory: *workspace_root
     environment:
       TZ: "/usr/share/zoneinfo/Europe/Berlin"
